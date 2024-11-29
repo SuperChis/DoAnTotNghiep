@@ -3,7 +3,6 @@ package org.example.ezyshop.config.service;
 
 import lombok.Data;
 import org.example.ezyshop.entity.User;
-import org.example.timesheet.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
