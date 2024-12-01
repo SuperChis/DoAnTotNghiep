@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,16 +25,30 @@ public class Product extends BaseEntity {
     private Integer quantity;
 
     @Column(name = "price",nullable = false)
-    private Double price;
+    private double price;
+
+    private double discount;
+
+    private double specialPrice;
 
     private String description;
 
     @Column(name = "image")
-    private String image;
+    private String imageURL;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<Cart> carts;
 
-    private boolean deleted = false;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "product",
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            fetch = FetchType.LAZY)
+    private List<CartItem> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    private boolean isDeleted = false;
 }
 

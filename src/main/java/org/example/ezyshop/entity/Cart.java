@@ -4,25 +4,23 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.example.ezyshop.base.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 public class Cart extends BaseEntity {
 
-    private Integer quantity;
+    private Double totalPrice = 0.0;
 
-    private String status;
-
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
-    private User account;
+    private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @ManyToOne
-    @JoinColumn(name = "orderEntity_id")
-    private OrderEntity orderEntity;
+    @OneToMany(mappedBy = "cart",
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            orphanRemoval = true)
+    private List<CartItem> cartItems = new ArrayList<>();
 
     private boolean isDeleted;
 }

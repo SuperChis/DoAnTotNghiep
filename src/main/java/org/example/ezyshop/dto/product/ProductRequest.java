@@ -1,15 +1,10 @@
 package org.example.ezyshop.dto.product;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProductDTO {
-    private Long productId;
-    private String productName;
+@Getter
+public class ProductRequest {
+    private String name;
     private String image;
     private String description;
     private Integer quantity;
