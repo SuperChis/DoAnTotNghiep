@@ -2,11 +2,7 @@ package org.example.ezyshop.service;
 
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.JwtResponse;
-import org.example.ezyshop.dto.auth.ResetPasswordRequest;
-import org.example.ezyshop.dto.auth.SignInRequest;
-import org.example.ezyshop.dto.auth.SignUpRequest;
-import org.example.ezyshop.dto.auth.SignUpResponse;
-import org.example.ezyshop.dto.user.UserRequest;
+import org.example.ezyshop.dto.auth.*;
 import org.example.ezyshop.dto.user.UserResponse;
 import org.example.ezyshop.entity.User;
 import org.springframework.data.domain.Pageable;
@@ -32,4 +28,6 @@ public interface UserService {
     BaseResponse deactiveUser(Long userId);
 
 //    UserResponse search(String search);
+
+//    JwtResponse signInWithGooggle(GoogleSignInRequest request);
 }

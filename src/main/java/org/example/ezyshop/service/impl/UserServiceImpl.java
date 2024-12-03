@@ -4,10 +4,7 @@ import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.config.jwt.JwtUtils;
 import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.JwtResponse;
-import org.example.ezyshop.dto.auth.ResetPasswordRequest;
-import org.example.ezyshop.dto.auth.SignInRequest;
-import org.example.ezyshop.dto.auth.SignUpRequest;
-import org.example.ezyshop.dto.auth.SignUpResponse;
+import org.example.ezyshop.dto.auth.*;
 import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.user.UserDTO;
 import org.example.ezyshop.dto.user.UserResponse;
@@ -172,6 +169,48 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
         return new BaseResponse(true, 200, "User id: " + userId + " is active: " + user.isDeleted());
     }
+
+//    @Override
+//    public JwtResponse signInWithGooggle(GoogleSignInRequest request) {
+//        // Xác thực ID Token từ Google
+//        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+//                .setAudience(Collections.singletonList("YOUR_GOOGLE_CLIENT_ID"))
+//                .build();
+//
+//        try {
+//            GoogleIdToken idToken = verifier.verify(request.getIdToken());
+//            if (idToken != null) {
+//                GoogleIdToken.Payload payload = idToken.getPayload();
+//
+//                String email = payload.getEmail();
+//                String name = (String) payload.get("name");
+//
+//                // Kiểm tra người dùng trong hệ thống
+//                User user = userRepository.findByEmail(email)
+//                        .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+//
+//                // Tạo Authentication object cho người dùng
+//                UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+//                UsernamePasswordAuthenticationToken authenticationToken =
+//                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+//
+//                // Sinh JWT và Refresh Token
+//                String jwt = jwtUtils.generateJwtToken(authenticationToken);
+//                RefreshToken refreshToken = refreshTokenService.createRefreshToken(authenticationToken);
+//
+//                List<String> roles = userDetails.getAuthorities().stream()
+//                        .map(GrantedAuthority::getAuthority)
+//                        .collect(Collectors.toList());
+//
+//                return new JwtResponse(jwt, refreshToken.getToken(), roles);
+//            } else {
+//                throw new AuthenticationFailException(false, 401, "Invalid Google ID Token");
+//            }
+//        } catch (Exception e) {
+//            throw new AuthenticationFailException(false, 401, "Google authentication failed: " + e.getMessage());
+//        }
+//    }
 
 //    @Override
 //    public UserResponse search(String search) {

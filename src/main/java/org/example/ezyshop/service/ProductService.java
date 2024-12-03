@@ -7,9 +7,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-    ProductResponse addProduct(Long categoryId, ProductRequest request);
+    ProductResponse createProduct(Long categoryId, ProductRequest request);
 
-    ProductResponse getAllProducts(Pageable pageable);
+    ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
     ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
                                      String sortOrder);
@@ -21,5 +21,5 @@ public interface ProductService {
     ProductResponse searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
                                            String sortOrder);
 
-    String deleteProduct(Long productId);
+    ProductResponse deleteProduct(Long productId);
 }

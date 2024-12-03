@@ -49,6 +49,6 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    private boolean isDeleted = false;
+    private boolean isDeleted;
 }
 

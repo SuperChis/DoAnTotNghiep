@@ -13,7 +13,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class ProductResponse extends BaseResponse {
 
-    private List<ProductDTO> content;
+    private ProductDTO dto;
+    private List<ProductDTO> dtoList;
     private PageDto pageDto;
 
     public ProductResponse(boolean success, int code) {

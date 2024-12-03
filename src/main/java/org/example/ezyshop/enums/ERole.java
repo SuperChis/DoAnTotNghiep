@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ERole {
     ROLE_USER("user"),
-    ROLE_ADMIN("admin");
+    ROLE_ADMIN("admin"),
+    ROLE_SHIPPER("shipper");
 
     String text;
 

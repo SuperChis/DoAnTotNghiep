@@ -1,4 +1,4 @@
-package org.example.ezyshop.rest;
+package org.example.ezyshop.controller;
 
 
 import jakarta.validation.Valid;

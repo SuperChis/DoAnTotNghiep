@@ -2,9 +2,11 @@ package org.example.ezyshop.base;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class BaseResponse {
     private  boolean success;
     private int code;

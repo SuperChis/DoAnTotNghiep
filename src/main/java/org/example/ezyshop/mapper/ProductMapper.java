@@ -12,8 +12,8 @@ public interface ProductMapper {
     ProductMapper MAPPER = Mappers.getMapper(ProductMapper.class);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "category", ignore = true) // Bỏ qua ánh xạ cho quan hệ ManyToOne
-    @Mapping(target = "products", ignore = true) // Bỏ qua ánh xạ cho quan hệ OneToMany
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "products", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "imageURL", source = "image")
     Product toModel(ProductRequest request);
@@ -21,7 +21,7 @@ public interface ProductMapper {
     /**
      * Chuyển từ Product entity sang ProductDTO.
      */
-    @Mapping(target = "categoryId", source = "category.id") // Lấy ID của category
+    @Mapping(target = "categoryId", source = "category.id")
     ProductDTO toDTO(Product product);
 
     /**
