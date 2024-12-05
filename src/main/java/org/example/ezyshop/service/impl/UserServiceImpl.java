@@ -1,5 +1,6 @@
 package org.example.ezyshop.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.config.jwt.JwtUtils;
 import org.example.ezyshop.config.service.UserDetailsImpl;
@@ -15,6 +16,7 @@ import org.example.ezyshop.enums.ERole;
 import org.example.ezyshop.exception.AuthenticationFailException;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
+import org.example.ezyshop.mailConfig.EmailService;
 import org.example.ezyshop.mapper.UserMapper;
 import org.example.ezyshop.repository.RoleRepository;
 import org.example.ezyshop.repository.UserRepository;
@@ -56,8 +58,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     RefreshTokenService refreshTokenService;
 
-//    @Autowired
-//    private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
     public SignUpResponse signUp(SignUpRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -71,8 +73,6 @@ public class UserServiceImpl implements UserService {
                 .setUsername(request.getUsername())
                 .setEmail(request.getEmail())
                 .setPassword(encoder.encode(request.getPassword()))
-                .setUserType(request.getUserType())
-                .setUserLevel(request.getUserLevel())
                 .setSex(request.getSex())
                 .setDeleted(false);
         Set<Role> roles = new HashSet<>();
@@ -81,10 +81,10 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         repository.save(user);
 
-        // Gửi email thông báo
-//        String subject = "Registration Successful";
-//        String text = "Dear " + user.getUsername() + ",\n\nYour registration is successful.\n\nBest regards,\nYour Company";
-//        emailService.sendEmail(user.getEmail(), subject, text);
+        //Gửi email thông báo
+        String subject = "Registration Successful";
+        String text = "Dear " + user.getUsername() + ",\n\nYour registration is successful.\n\nBest regards,\nYour Company";
+        emailService.sendEmail(user.getEmail(), subject, text);
 
         return new SignUpResponse(true, 200);
     }
@@ -145,6 +145,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public BaseResponse resetPasswordByUser(ResetPasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

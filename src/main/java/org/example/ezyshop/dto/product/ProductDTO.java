@@ -3,6 +3,7 @@ package org.example.ezyshop.dto.product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.ezyshop.dto.category.CategoryDTO;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +17,5 @@ public class ProductDTO {
     private double price;
     private double discount;
     private double specialPrice;
+    private CategoryDTO categoryDTO;
 }

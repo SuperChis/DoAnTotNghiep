@@ -48,15 +48,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse createProduct(Long categoryId, ProductRequest request) {
+    public ProductResponse createProduct( ProductRequest request) {
 
-        Category savedCategory = categoryRepository.findByIdAndIsDeletedFalse(categoryId);
+        Category savedCategory = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId());
 
         if (savedCategory == null) {
             throw new NotFoundException(false, 400, "Category not found");
         }
 
-        Product productCheck = repository.findByNameAndCategory(request.getName(), categoryId);
+        Product productCheck = repository.findByNameAndCategory(request.getName(), request.getCategoryId());
 
         if (productCheck != null) {
             throw new RequetFailException(false, 409, "product exists");

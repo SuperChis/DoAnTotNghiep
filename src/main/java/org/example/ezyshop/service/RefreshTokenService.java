@@ -53,14 +53,25 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        RefreshToken refreshToken = new RefreshToken();
+        Long userId = userDetails.getUser().getId();
 
-        refreshToken.setUser(userRepository.findById(userDetails.getUser().getId()).get());
+        // Kiểm tra Refresh Token đã tồn tại
+        Optional<RefreshToken> existingToken = repository.findByUserId(userId);
+
+        if (existingToken.isPresent()) {
+            RefreshToken refreshToken = existingToken.get();
+            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+            refreshToken.setToken(UUID.randomUUID().toString());
+            return repository.save(refreshToken);
+        }
+
+        // Nếu chưa tồn tại, tạo mới
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUser(userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("User not found: " + userId)));
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshToken.setToken(UUID.randomUUID().toString());
-
-        refreshToken = repository.save(refreshToken);
-        return refreshToken;
+        return repository.save(refreshToken);
     }
 
     public RefreshToken verifyExpiration(RefreshToken token) {

@@ -21,7 +21,10 @@ public interface ProductMapper {
     /**
      * Chuyển từ Product entity sang ProductDTO.
      */
-    @Mapping(target = "categoryId", source = "category.id")
+    @Mapping(target = "productId", source = "id")
+    @Mapping(target = "productName", source = "name")
+    @Mapping(target = "image", source = "imageURL")
+    @Mapping(target = "categoryDTO", source = "category")
     ProductDTO toDTO(Product product);
 
     /**

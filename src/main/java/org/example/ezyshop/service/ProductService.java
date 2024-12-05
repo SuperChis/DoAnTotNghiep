@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-    ProductResponse createProduct(Long categoryId, ProductRequest request);
+    ProductResponse createProduct( ProductRequest request);
 
     ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 

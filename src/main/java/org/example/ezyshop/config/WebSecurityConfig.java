@@ -77,16 +77,19 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         (requests) -> requests
-                                .requestMatchers(HttpMethod.OPTIONS, "/**", "/api/categories").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**", "/api/categories",
+                                        "/api/product/public/search/**", "api/product/public", "/api/product/public/categories/**").permitAll()
                                 .requestMatchers("/api/auth/**",  "/api/product/public/**").permitAll()
-                                .requestMatchers( "/api/product/**", "/api/timesheet/user/.*").hasRole("USER")
-                                .requestMatchers("/api/categories/**", "/api/product/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/auth/user/**").hasRole("USER")
+                                .requestMatchers("/api/categories/**", "/api/product/admin/categories",
+                                        "/api/product/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .oauth2Login(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
-                .build();
+//                .oauth2Login(Customizer.withDefaults())
+//                .formLogin(Customizer.withDefaults())
+//                .build()
+        ;
 
 
         http.authenticationProvider(authenticationProvider());

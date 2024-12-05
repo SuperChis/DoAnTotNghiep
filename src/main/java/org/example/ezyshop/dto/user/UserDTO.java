@@ -15,10 +15,6 @@ public class UserDTO {
 
     private String email;
 
-    private String userType;
-
-    private String userLevel;
-
     private String sex;
 
     private boolean isDeleted;
@@ -31,8 +27,6 @@ public class UserDTO {
         this.id = id;
         this.username = username;
         this.email = email;
-        this.userType = userType;
-        this.userLevel = userLevel;
         this.isDeleted = isDeleted;
         this.sex= sex;
     }

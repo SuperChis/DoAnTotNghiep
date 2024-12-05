@@ -2,7 +2,9 @@ package org.example.ezyshop.controller;
 
 
 import jakarta.validation.Valid;
+import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.JwtResponse;
+import org.example.ezyshop.dto.auth.ResetPasswordRequest;
 import org.example.ezyshop.dto.auth.SignInRequest;
 import org.example.ezyshop.dto.auth.SignUpRequest;
 import org.example.ezyshop.dto.auth.SignUpResponse;
@@ -39,4 +41,10 @@ public class AuthController {
     public RefreshTokenResponse refreshTokenByUser(@Valid @RequestBody RefreshTokenRequest request) {
         return refreshTokenService.refreshTokenForUser(request);
     }
+
+    @PutMapping("/user/reset-pass-word")
+    public BaseResponse resetPasswordByUser(@RequestBody ResetPasswordRequest request){
+        return service.resetPasswordByUser(request);
+    }
+
 }
