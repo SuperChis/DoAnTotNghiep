@@ -43,7 +43,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    private Key key() {
+    public Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
@@ -70,4 +70,21 @@ public class JwtUtils {
         }
         return false;
     }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JWT token");
+        }
+    }
+
 }

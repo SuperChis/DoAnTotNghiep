@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Service
 public interface UserService {
+
     SignUpResponse signUp(SignUpRequest request, BindingResult bindingResult);
 
     JwtResponse signIn(SignInRequest request, BindingResult bindingResult);
@@ -30,4 +31,10 @@ public interface UserService {
 //    UserResponse search(String search);
 
 //    JwtResponse signInWithGooggle(GoogleSignInRequest request);
+
+    BaseResponse sendPasswordResetToken(ForgetPasswordRequest request);
+
+    BaseResponse resetPasswordForgot(String token, ForgetPasswordRequest request);
+
+    UserResponse getUerProfile();
 }

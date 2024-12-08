@@ -24,10 +24,6 @@ public class User extends BaseEntity {
 
     private String password;
 
-    private String userType;
-
-    private String userLevel;
-
     private String sex;
 
     private boolean isDeleted;

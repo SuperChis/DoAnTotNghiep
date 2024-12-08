@@ -1,6 +1,7 @@
 package org.example.ezyshop.config.jwt;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +45,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = parseJwt(request);
             if(jwt != null && jwtUtils.validateJwtToken(jwt)){
+                // Kiểm tra xem token có hết hạn không
+                if (jwtUtils.isTokenExpired(jwt)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token expired. Please refresh.");
+                    return;
+                }
+
                 String username = jwtUtils.getUsernameFromJwtToken(jwt);
                 Optional<User> user = userService.findByUserName(username);
                 UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(user.get().getEmail());
@@ -53,6 +61,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (ExpiredJwtException e) {
+            log.error("Token has expired: {}", e.getMessage());
+            response.setStatus(4001);
+            response.getWriter().write("Token expired. Please refresh.");
+            return;
         } catch (Exception e){
             log.error("failed on set account authentication", e);
         }

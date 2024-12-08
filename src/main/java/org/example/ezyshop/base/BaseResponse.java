@@ -11,6 +11,7 @@ public class BaseResponse {
     private  boolean success;
     private int code;
     private String message;
+
     public BaseResponse(boolean success, int code) {
         this.success = success;
         this.code = code;

@@ -1,5 +1,8 @@
 package org.example.ezyshop.service.impl;
 
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.config.jwt.JwtUtils;
@@ -23,6 +26,7 @@ import org.example.ezyshop.repository.UserRepository;
 import org.example.ezyshop.service.RefreshTokenService;
 import org.example.ezyshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +39,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,6 +67,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+    @Value("${EzyShop.app.jwtForgotExpirationMs}")
+    private Long forgotJWT;
+
+    @Value("${EzyShop.app.jwtSecret}")
+    private String jwtSecret;
+
+    @Value("${EzyShop.app.domain.client}")
+    private String domainApp;
+
+    @Override
     public SignUpResponse signUp(SignUpRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new SignUpResponse(false, 400, getErrMsg(bindingResult));
@@ -82,13 +103,43 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
 
         //Gửi email thông báo
-        String subject = "Registration Successful";
-        String text = "Dear " + user.getUsername() + ",\n\nYour registration is successful.\n\nBest regards,\nYour Company";
-        emailService.sendEmail(user.getEmail(), subject, text);
+//        String subject = "Registration Successful";
+//        String text = "Dear " + user.getUsername() + ",\n\nYour registration is successful.\n\nBest regards,\nYour Company";
+//        emailService.sendEmail(user.getEmail(), subject, text);
+        executorService.submit(() -> {
+            try {
+                String subject = "Welcome to Our EzyShop!";
+                String text = "Dear " + user.getUsername() + ",\n\n" +
+                        "Thank you for registering an account with us. We’re excited to have you as part of our community!\n\n" +
+                        "With your new account, you can now:\n" +
+                        "- Browse and shop from a wide range of products.\n" +
+                        "- Enjoy exclusive deals and discounts.\n" +
+                        "- Track your orders and manage your preferences easily.\n\n" +
+                        "If you have any questions or need assistance, our customer support team is here to help. You can reach us at supportEzyShop@yopmail.com.\n\n" +
+                        "Start exploring now and make the most out of your shopping experience!\n\n" +
+                        "Best regards,\n" +
+                        "The EzyShop Team";
+                emailService.sendEmail(user.getEmail(), subject, text);
+            } catch (Exception e) {
+                System.err.println("Error occurred while sending email: " + e.getMessage());
+            }
+        });
 
-        return new SignUpResponse(true, 200);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = jwtUtils.generateJwtToken(authentication);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication);
+
+        return new SignUpResponse(true, 200)
+                .setToken(jwt)
+                .setRefreshToken(refreshToken.getToken())
+                .setRoles(roles);
     }
 
+    @Override
     public JwtResponse signIn(SignInRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new RequetFailException(false, 400, getErrMsg(bindingResult));
@@ -108,7 +159,7 @@ public class UserServiceImpl implements UserService {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        return new JwtResponse(jwt, refreshToken.getToken(), roles);
+        return new JwtResponse(jwt, refreshToken.getToken(), roles, true, 200);
     }
 
     @Override
@@ -170,6 +221,75 @@ public class UserServiceImpl implements UserService {
         repository.save(user);
         return new BaseResponse(true, 200, "User id: " + userId + " is active: " + user.isDeleted());
     }
+
+    @Override
+    public BaseResponse sendPasswordResetToken(ForgetPasswordRequest request) {
+        User existUser = userRepository.findByEmailAndIsDeletedFalse(request.getEmail())
+                .orElseThrow(() -> new NotFoundException(false, 404, "User not exist"));
+
+        String forgotPasswordJwt = Jwts.builder()
+                .setSubject(existUser.getEmail())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + forgotJWT))
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)), SignatureAlgorithm.HS256)
+                .compact();
+
+        executorService.submit(() -> {
+           try {
+               StringBuilder resetUrlBuilder = new StringBuilder("http://");
+               resetUrlBuilder.append(domainApp);
+               resetUrlBuilder.append("/reset-password?token=");
+               resetUrlBuilder.append(forgotPasswordJwt);
+               String resetUrl = resetUrlBuilder.toString();
+
+               String subject = "Reset Your Password";
+               String text = "Dear " + existUser.getUsername() + ",\n\n" +
+                       "Click the link below to reset your password:\n" +
+                       resetUrl + "\n\n" +
+                       "If you didn’t request a password reset, please ignore this email.";
+
+               emailService.sendEmail(existUser.getEmail(), subject, text);
+           } catch (Exception e) {
+               System.out.println(e.getMessage());
+           }
+        });
+        return new BaseResponse(true, 200, "A password reset email has been sent to your email address. Please check your email!!!");
+    }
+
+    @Override
+    public BaseResponse resetPasswordForgot(String token, ForgetPasswordRequest request) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String email = claims.getSubject();
+            User user = userRepository.findByEmailAndIsDeletedFalse(email)
+                    .orElseThrow(() -> new NotFoundException(false, 404, "User does not exist"));
+
+            user.setPassword(encoder.encode(request.getPassword()));
+            userRepository.save(user);
+
+        } catch (ExpiredJwtException e) {
+            throw new RuntimeException("Token has expired");
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new RuntimeException("Invalid token");
+        }
+        return new BaseResponse(true, 200, "Your password has been successfully reset");
+    }
+
+    @Override
+    public UserResponse getUerProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        UserDTO dto = UserMapper.Mapper.toDTO(user);
+        return new UserResponse(true, 200)
+                .setUserDTO(dto);
+    }
+
 
 //    @Override
 //    public JwtResponse signInWithGooggle(GoogleSignInRequest request) {

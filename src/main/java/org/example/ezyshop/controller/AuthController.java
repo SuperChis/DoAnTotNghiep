@@ -4,15 +4,13 @@ package org.example.ezyshop.controller;
 import jakarta.validation.Valid;
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.JwtResponse;
-import org.example.ezyshop.dto.auth.ResetPasswordRequest;
-import org.example.ezyshop.dto.auth.SignInRequest;
-import org.example.ezyshop.dto.auth.SignUpRequest;
-import org.example.ezyshop.dto.auth.SignUpResponse;
+import org.example.ezyshop.dto.auth.*;
 import org.example.ezyshop.dto.refreshToken.RefreshTokenRequest;
 import org.example.ezyshop.dto.refreshToken.RefreshTokenResponse;
 import org.example.ezyshop.service.RefreshTokenService;
 import org.example.ezyshop.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*; 
 
@@ -33,12 +31,12 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up")
-    public SignUpResponse singUp(@RequestBody @Valid SignUpRequest request, BindingResult bindingResult) {
+    public SignUpResponse singUp(@RequestBody SignUpRequest request, BindingResult bindingResult) {
         return service.signUp(request, bindingResult);
     }
 
     @PostMapping("/refresh-token")
-    public RefreshTokenResponse refreshTokenByUser(@Valid @RequestBody RefreshTokenRequest request) {
+    public RefreshTokenResponse refreshTokenByUser(@RequestBody RefreshTokenRequest request) {
         return refreshTokenService.refreshTokenForUser(request);
     }
 
@@ -47,4 +45,14 @@ public class AuthController {
         return service.resetPasswordByUser(request);
     }
 
+    @PostMapping("/forgot-password")
+    public BaseResponse forgotPassword(@RequestBody ForgetPasswordRequest request) {
+        return service.sendPasswordResetToken(request);
+    }
+
+    @PostMapping("/reset-password")
+    public BaseResponse resetPassword(@RequestParam("token") String token,
+                                           @RequestBody ForgetPasswordRequest request) {
+        return service.resetPasswordForgot(token, request);
+    }
 }
