@@ -12,8 +12,5 @@ public class SignUpRequest {
     private String email;
     @NotBlank(message = "Password is empty")
     private String password;
-    private String branch;
-    private String userType;
-    private String userLevel;
     private String sex;
 }

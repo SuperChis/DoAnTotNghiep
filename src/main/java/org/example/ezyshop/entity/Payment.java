@@ -17,6 +17,7 @@ import org.example.ezyshop.base.BaseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Payment extends BaseEntity {
+
     @OneToOne(mappedBy = "payment", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Order order;
 

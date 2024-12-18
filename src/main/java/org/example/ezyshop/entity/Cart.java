@@ -2,6 +2,8 @@ package org.example.ezyshop.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import net.minidev.json.annotate.JsonIgnore;
 import org.example.ezyshop.base.BaseEntity;
 
 import java.util.ArrayList;
@@ -11,16 +13,11 @@ import java.util.List;
 @Data
 public class Cart extends BaseEntity {
 
-    private Double totalPrice = 0.0;
+    private Double totalPrice;
 
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "cart",
-            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
-            orphanRemoval = true)
-    private List<CartItem> cartItems = new ArrayList<>();
-
-    private boolean isDeleted;
+    private Boolean isDeleted;
 }

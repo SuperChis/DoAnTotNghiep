@@ -20,7 +20,7 @@ public class OrderItem extends BaseEntity {
 
     private double discount;
 
-    private double orderedProductPrice;
+    private double price;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -30,4 +30,5 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    private boolean isDeleted;
 }

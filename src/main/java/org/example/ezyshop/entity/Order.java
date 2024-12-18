@@ -19,9 +19,6 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    private List<OrderItem> orderItems = new ArrayList<>();
-
     private LocalDate orderDate;
 
     @OneToOne
@@ -29,7 +26,8 @@ public class Order extends BaseEntity {
     private Payment payment;
 
     private Double totalAmount;
+
     private String orderStatus;
 
-    private boolean isDeleted = false;
+    private boolean isDeleted;
 }

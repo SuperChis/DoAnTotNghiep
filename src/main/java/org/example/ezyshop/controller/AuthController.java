@@ -10,7 +10,6 @@ import org.example.ezyshop.dto.refreshToken.RefreshTokenResponse;
 import org.example.ezyshop.service.RefreshTokenService;
 import org.example.ezyshop.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*; 
 
@@ -40,9 +39,9 @@ public class AuthController {
         return refreshTokenService.refreshTokenForUser(request);
     }
 
-    @PutMapping("/user/reset-pass-word")
-    public BaseResponse resetPasswordByUser(@RequestBody ResetPasswordRequest request){
-        return service.resetPasswordByUser(request);
+    @PutMapping("/user/change-password")
+    public BaseResponse changePasswordByUser(@RequestBody ChangePasswordRequest request){
+        return service.changePasswordByUser(request);
     }
 
     @PostMapping("/forgot-password")
@@ -50,9 +49,9 @@ public class AuthController {
         return service.sendPasswordResetToken(request);
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping("/change-password")
     public BaseResponse resetPassword(@RequestParam("token") String token,
-                                           @RequestBody ForgetPasswordRequest request) {
+                                      @RequestBody ForgetPasswordRequest request) {
         return service.resetPasswordForgot(token, request);
     }
 }

@@ -3,6 +3,7 @@ package org.example.ezyshop.service;
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.JwtResponse;
 import org.example.ezyshop.dto.auth.*;
+import org.example.ezyshop.dto.user.UserRequest;
 import org.example.ezyshop.dto.user.UserResponse;
 import org.example.ezyshop.entity.User;
 import org.springframework.data.domain.Pageable;
@@ -18,13 +19,15 @@ public interface UserService {
 
     JwtResponse signIn(SignInRequest request, BindingResult bindingResult);
 
-    Optional<User> findByUserName(String username);
+    BaseResponse logOut();
+
+    Optional<User> findByEmail(String email);
 
     UserResponse getListUser(Pageable pageable);
 
-    BaseResponse resetPasswordByAdmin(ResetPasswordRequest request);
+    BaseResponse resetPasswordByAdmin(ChangePasswordRequest request);
 
-    BaseResponse resetPasswordByUser(ResetPasswordRequest request);
+    BaseResponse changePasswordByUser(ChangePasswordRequest request);
 
     BaseResponse deactiveUser(Long userId);
 
@@ -36,5 +39,9 @@ public interface UserService {
 
     BaseResponse resetPasswordForgot(String token, ForgetPasswordRequest request);
 
-    UserResponse getUerProfile();
+    UserResponse getUserProfile();
+
+    UserResponse updateProfile(UserRequest request);
+
+    UserResponse updateAvatar(String fileUrl);
 }

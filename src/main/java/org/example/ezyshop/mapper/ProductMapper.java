@@ -6,14 +6,14 @@ import org.example.ezyshop.entity.Product;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ProductMapper {
 
     ProductMapper MAPPER = Mappers.getMapper(ProductMapper.class);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "category", ignore = true)
-    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "cartItems", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "imageURL", source = "image")
     Product toModel(ProductRequest request);
@@ -32,7 +32,7 @@ public interface ProductMapper {
      */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "category", ignore = true)
-    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "cartItems", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "imageURL", source = "image")
     void updateProductFromRequest(ProductRequest request, @MappingTarget Product product);

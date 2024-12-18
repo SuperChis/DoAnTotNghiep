@@ -9,7 +9,6 @@ import org.example.ezyshop.base.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -27,15 +26,20 @@ public class Product extends BaseEntity {
     @Column(name = "price",nullable = false)
     private double price;
 
+    @Column()
     private double discount;
 
+    @Column()
     private double specialPrice;
 
+    @Column()
     private String description;
+
+    @Column()
+    private String summary;
 
     @Column(name = "image")
     private String imageURL;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -44,10 +48,14 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product",
             cascade = { CascadeType.PERSIST, CascadeType.MERGE },
             fetch = FetchType.LAZY)
-    private List<CartItem> products = new ArrayList<>();
+    private List<CartItem> cartItems = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private StoreEntity store;
 
     private boolean isDeleted;
 }

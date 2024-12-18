@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseEntity;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +26,14 @@ public class User extends BaseEntity {
     private String password;
 
     private String sex;
+
+    private Date birthDay;
+
+    private String phoneNumber;
+
+    private String avatarUrl;
+
+    private boolean isStore;
 
     private boolean isDeleted;
 

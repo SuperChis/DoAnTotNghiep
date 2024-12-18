@@ -44,16 +44,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            if(jwt != null && jwtUtils.validateJwtToken(jwt)){
+            if(jwt != null ){
                 // Kiểm tra xem token có hết hạn không
                 if (jwtUtils.isTokenExpired(jwt)) {
+                    response.setContentType("application/json");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Token expired. Please refresh.");
+                    response.getWriter().write("{\"code\": 4001, \"message\": \"Token expired. Please refresh.\"}");
                     return;
                 }
-
-                String username = jwtUtils.getUsernameFromJwtToken(jwt);
-                Optional<User> user = userService.findByUserName(username);
+                if (!jwtUtils.validateJwtToken(jwt)) {
+                    return;
+                }
+                String userMail = jwtUtils.getUsernameFromJwtToken(jwt);
+                Optional<User> user = userService.findByEmail(userMail);
                 UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(user.get().getEmail());
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null,
@@ -61,11 +64,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (ExpiredJwtException e) {
-            log.error("Token has expired: {}", e.getMessage());
-            response.setStatus(4001);
-            response.getWriter().write("Token expired. Please refresh.");
-            return;
         } catch (Exception e){
             log.error("failed on set account authentication", e);
         }

@@ -5,7 +5,6 @@ import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.entity.Role;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.ezyshop.entity.Role;
 
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -16,6 +17,12 @@ public class UserDTO {
     private String email;
 
     private String sex;
+
+    private String phoneNumber;
+
+    private String avatarUrl;
+
+    private Date birthDay;
 
     private boolean isDeleted;
 

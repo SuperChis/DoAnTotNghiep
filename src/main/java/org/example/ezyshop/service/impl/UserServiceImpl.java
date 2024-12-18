@@ -11,7 +11,9 @@ import org.example.ezyshop.dto.JwtResponse;
 import org.example.ezyshop.dto.auth.*;
 import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.user.UserDTO;
+import org.example.ezyshop.dto.user.UserRequest;
 import org.example.ezyshop.dto.user.UserResponse;
+import org.example.ezyshop.entity.Cart;
 import org.example.ezyshop.entity.RefreshToken;
 import org.example.ezyshop.entity.Role;
 import org.example.ezyshop.entity.User;
@@ -21,6 +23,8 @@ import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mailConfig.EmailService;
 import org.example.ezyshop.mapper.UserMapper;
+import org.example.ezyshop.repository.CartRepository;
+import org.example.ezyshop.repository.RefreshTokenRepository;
 import org.example.ezyshop.repository.RoleRepository;
 import org.example.ezyshop.repository.UserRepository;
 import org.example.ezyshop.service.RefreshTokenService;
@@ -65,10 +69,16 @@ public class UserServiceImpl implements UserService {
     RefreshTokenService refreshTokenService;
 
     @Autowired
+    RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
     private EmailService emailService;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
@@ -80,6 +90,9 @@ public class UserServiceImpl implements UserService {
 
     @Value("${EzyShop.app.domain.client}")
     private String domainApp;
+
+    @Value("${EzyShop.app.domain.server}")
+    private String domainServer;
 
     @Override
     public SignUpResponse signUp(SignUpRequest request, BindingResult bindingResult) {
@@ -96,46 +109,59 @@ public class UserServiceImpl implements UserService {
                 .setPassword(encoder.encode(request.getPassword()))
                 .setSex(request.getSex())
                 .setDeleted(false);
+        user.setCreated(new Date());
+        user.setLastUpdate(new Date());
+
         Set<Role> roles = new HashSet<>();
-        Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new AuthenticationFailException(false, 401, "Error: Role is not found"));
+        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                .orElseThrow(() -> new AuthenticationFailException(false, 401, "Error: Role is not found"));
         roles.add(userRole);
         user.setRoles(roles);
         repository.save(user);
 
-        //Gửi email thông báo
-//        String subject = "Registration Successful";
-//        String text = "Dear " + user.getUsername() + ",\n\nYour registration is successful.\n\nBest regards,\nYour Company";
-//        emailService.sendEmail(user.getEmail(), subject, text);
+        //Create Cart for user
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cart.setTotalPrice(0.0);
+        cart.setIsDeleted(false);
+        cartRepository.save(cart);
+
         executorService.submit(() -> {
             try {
-                String subject = "Welcome to Our EzyShop!";
-                String text = "Dear " + user.getUsername() + ",\n\n" +
-                        "Thank you for registering an account with us. We’re excited to have you as part of our community!\n\n" +
-                        "With your new account, you can now:\n" +
-                        "- Browse and shop from a wide range of products.\n" +
-                        "- Enjoy exclusive deals and discounts.\n" +
-                        "- Track your orders and manage your preferences easily.\n\n" +
-                        "If you have any questions or need assistance, our customer support team is here to help. You can reach us at supportEzyShop@yopmail.com.\n\n" +
-                        "Start exploring now and make the most out of your shopping experience!\n\n" +
-                        "Best regards,\n" +
-                        "The EzyShop Team";
-                emailService.sendEmail(user.getEmail(), subject, text);
+                executorService.submit(() -> {
+                    try {
+                        String subject = "Chào mừng đến với TokooShop của chúng tôi!";
+                        String text = "Kính gửi " + user.getUsername() + ",\n\n" +
+                                "Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Chúng tôi rất vui khi có bạn trở thành một phần của cộng đồng TokooShop!\n\n" +
+                                "Với tài khoản mới, bạn có thể:\n" +
+                                "- Duyệt và mua sắm từ một loạt sản phẩm phong phú.\n" +
+                                "- Tận hưởng các ưu đãi và giảm giá độc quyền.\n" +
+                                "- Theo dõi đơn hàng và dễ dàng quản lý các tùy chọn cá nhân.\n\n" +
+                                "Nếu bạn có bất kỳ câu hỏi nào hoặc cần hỗ trợ, đội ngũ chăm sóc khách hàng của chúng tôi luôn sẵn sàng giúp đỡ. Bạn có thể liên hệ với chúng tôi qua email tokoosystem@gmail.com.\n\n" +
+                                "Hãy bắt đầu khám phá ngay và tận hưởng trải nghiệm mua sắm tốt nhất!\n\n" +
+                                "Trân trọng,\n" +
+                                "Đội ngũ TokooShop";
+                        emailService.sendEmail(user.getEmail(), subject, text);
+                    } catch (Exception e) {
+                        System.err.println("Đã xảy ra lỗi khi gửi email: " + e.getMessage());
+                    }
+                });
             } catch (Exception e) {
                 System.err.println("Error occurred while sending email: " + e.getMessage());
             }
         });
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication);
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+//        );
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        String jwt = jwtUtils.generateJwtToken(authentication);
+//        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication);
 
         return new SignUpResponse(true, 200)
-                .setToken(jwt)
-                .setRefreshToken(refreshToken.getToken())
+//                .setToken(jwt)
+//                .setRefreshToken(refreshToken.getToken())
                 .setRoles(roles);
     }
 
@@ -163,8 +189,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByUserName(String username) {
-        return repository.findByUsernameAndIsDeletedFalse(username);
+    @Transactional
+    public BaseResponse logOut() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(user.getId());
+        if (refreshToken.isPresent()) {
+            refreshTokenService.deleteByUser(user);
+        }
+        SecurityContextHolder.clearContext();
+        return new BaseResponse(true, 200, "Logout successfully");
+    }
+
+    @Override
+    public Optional<User> findByEmail(String username) {
+        return repository.findByEmailAndIsDeletedFalse(username);
     }
 
     @Override
@@ -181,27 +221,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseResponse resetPasswordByAdmin(ResetPasswordRequest request) {
+    public BaseResponse resetPasswordByAdmin(ChangePasswordRequest request) {
         Optional<User> userOptional = repository.findByIdAndIsDeletedFalse(request.getUserId());
         if (userOptional.isEmpty()) {
             throw new NotFoundException(false, 404, "User not exists");
         }
-        if (request == null || request.getPassword().isEmpty()) {
+        if (request == null || request.getNewPassword().isEmpty()) {
             throw new RequetFailException(false, 400, "password is not empty");
         }
         User user = userOptional.get();
-        user.setPassword(encoder.encode(request.getPassword()));
+        user.setPassword(encoder.encode(request.getNewPassword()));
         repository.save(user);
         return new BaseResponse(true, 200, "change password succesfully");
     }
 
     @Override
     @Transactional
-    public BaseResponse resetPasswordByUser(ResetPasswordRequest request) {
+    public BaseResponse changePasswordByUser(ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
-        user.setPassword(encoder.encode(request.getPassword()));
+
+        if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
+            return new BaseResponse(false, 400, "Current password is incorrect");
+        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        user.setLastUpdate(new Date());
         repository.save(user);
         return new BaseResponse(true, 200, "change password succesfully");
     }
@@ -238,15 +284,15 @@ public class UserServiceImpl implements UserService {
            try {
                StringBuilder resetUrlBuilder = new StringBuilder("http://");
                resetUrlBuilder.append(domainApp);
-               resetUrlBuilder.append("/reset-password?token=");
+               resetUrlBuilder.append("/auth/change-password?token=");
                resetUrlBuilder.append(forgotPasswordJwt);
                String resetUrl = resetUrlBuilder.toString();
 
-               String subject = "Reset Your Password";
-               String text = "Dear " + existUser.getUsername() + ",\n\n" +
-                       "Click the link below to reset your password:\n" +
+               String subject = "Đặt lại mật khẩu của bạn";
+               String text = "Kính gửi " + existUser.getUsername() + ",\n\n" +
+                       "Nhấp vào liên kết bên dưới để đặt lại mật khẩu của bạn:\n" +
                        resetUrl + "\n\n" +
-                       "If you didn’t request a password reset, please ignore this email.";
+                       "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.";
 
                emailService.sendEmail(existUser.getEmail(), subject, text);
            } catch (Exception e) {
@@ -270,6 +316,7 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new NotFoundException(false, 404, "User does not exist"));
 
             user.setPassword(encoder.encode(request.getPassword()));
+            user.setLastUpdate(new Date());
             userRepository.save(user);
 
         } catch (ExpiredJwtException e) {
@@ -281,13 +328,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUerProfile() {
+    public UserResponse getUserProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
         UserDTO dto = UserMapper.Mapper.toDTO(user);
         return new UserResponse(true, 200)
                 .setUserDTO(dto);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(UserRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        UserMapper.Mapper.updateUserFromRequest(request, user);
+        repository.save(user);
+        return new UserResponse(true, 200)
+                .setUserDTO(UserMapper.Mapper.toDTO(user));
+    }
+
+    @Override
+    public UserResponse updateAvatar(String fileUrl) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        user.setAvatarUrl(domainServer + fileUrl);
+        repository.save(user);
+        UserDTO dto = UserMapper.Mapper.toDTO(user);
+        return new UserResponse(true, 200).setUserDTO(dto);
     }
 
 

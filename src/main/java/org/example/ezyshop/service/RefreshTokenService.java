@@ -5,6 +5,7 @@ import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.refreshToken.RefreshTokenRequest;
 import org.example.ezyshop.dto.refreshToken.RefreshTokenResponse;
 import org.example.ezyshop.entity.RefreshToken;
+import org.example.ezyshop.entity.User;
 import org.example.ezyshop.exception.TokenRefreshException;
 import org.example.ezyshop.repository.RefreshTokenRepository;
 import org.example.ezyshop.repository.UserRepository;
@@ -43,7 +44,7 @@ public class RefreshTokenService {
                 .map(this::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    String token = jwtUtils.generateTokenFromUsername(user.getEmail());
                     return new RefreshTokenResponse(token, requestRefreshToken);
                 })
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
@@ -85,7 +86,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public int deleteByUserId(Long userId) {
-        return repository.deleteByUser(userRepository.findById(userId).get());
+    public void deleteByUser(User user) {
+        repository.deleteRefreshTokenByUser(user);
     }
 }
