@@ -13,14 +13,21 @@ import org.example.ezyshop.base.BaseEntity;
 @Accessors(chain = true)
 public class Address extends BaseEntity {
 
-    @Column()
-    private String street;
+    private String nameCustomer;
 
-    @Column()
-    private String city;
+    private String phoneNumber;
 
-    @Column()
-    private String state;
+    @Column(nullable = false) // Địa chỉ cụ thể (số nhà, tên đường...)
+    private String specificAddress;
+
+    @Column(nullable = false) // Xã/phường
+    private String ward;
+
+    @Column(nullable = false) // Quận/huyện
+    private String district;
+
+    @Column(nullable = false) // Tỉnh/thành phố
+    private String province;
 
     @Column()
     private Boolean defaultAddress;

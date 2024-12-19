@@ -49,7 +49,7 @@ public class AuthController {
         return service.sendPasswordResetToken(request);
     }
 
-    @PostMapping("/change-password")
+    @PostMapping("/reset-password")
     public BaseResponse resetPassword(@RequestParam("token") String token,
                                       @RequestBody ForgetPasswordRequest request) {
         return service.resetPasswordForgot(token, request);

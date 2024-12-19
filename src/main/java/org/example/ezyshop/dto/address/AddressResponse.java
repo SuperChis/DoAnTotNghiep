@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseResponse;
+import org.example.ezyshop.dto.user.UserDTO;
 
 import java.util.List;
 

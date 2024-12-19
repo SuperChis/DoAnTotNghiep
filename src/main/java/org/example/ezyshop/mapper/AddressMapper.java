@@ -15,6 +15,7 @@ public interface AddressMapper {
     AddressMapper MAPPER = Mappers.getMapper(AddressMapper.class);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "fullAddress", ignore = true)
     AddressDTO toDTO(Address address);
 
     //    @Mapping(target = "cartItems", ignore = true)

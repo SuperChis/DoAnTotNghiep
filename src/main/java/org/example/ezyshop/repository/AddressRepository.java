@@ -13,23 +13,32 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     @Query("SELECT a " +
             "from Address a " +
             "left join User u on a.user.id = u.id " +
-            "and u.isDeleted = false " +
+            "where u.isDeleted = false " +
             "and a.isDeleted = false " +
-            "and a.id = ?1")
+            "and a.id = (?1) ")
     Optional<Address> findById(Long id);
 
     @Query("SELECT a " +
             "from Address a " +
             "left join User u on a.user.id = u.id " +
-            "and u.isDeleted = false " +
+            "where u.isDeleted = false " +
             "and a.isDeleted = false " +
-            "and u.id = ?1")
+            "and u.id = (?1) ")
     List<Address> findByUserId(Long userId);
 
     @Query("SELECT a " +
             "from Address a " +
             "left join User u on a.user.id = u.id " +
-            "and u.isDeleted = false " +
+            "where u.isDeleted = false " +
             "and a.isDeleted = false ")
     Address findByIdAndIsDeletedFalse(Long id);
+
+    @Query("SELECT a " +
+            "from Address a " +
+            "left join User u on a.user.id = u.id " +
+            "where u.isDeleted = false " +
+            "and a.isDeleted = false " +
+            "and a.id = (?1) " +
+            "and a.defaultAddress = false")
+    Optional<Address> findByIdAndIsDefaultAddressFalse(Long id);
 }

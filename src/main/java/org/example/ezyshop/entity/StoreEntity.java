@@ -11,6 +11,11 @@ import org.example.ezyshop.base.BaseEntity;
 @Accessors(chain = true)
 public class
 StoreEntity extends BaseEntity {
+
+    private String email;
+
+    private String password;
+
     @Column(nullable = false, unique = true)
     private String name;
 

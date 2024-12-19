@@ -6,10 +6,12 @@ import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.address.AddressDTO;
 import org.example.ezyshop.dto.address.AddressRequest;
 import org.example.ezyshop.dto.address.AddressResponse;
+import org.example.ezyshop.dto.user.UserDTO;
 import org.example.ezyshop.entity.Address;
 import org.example.ezyshop.entity.User;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.mapper.AddressMapper;
+import org.example.ezyshop.mapper.UserMapper;
 import org.example.ezyshop.repository.AddressRepository;
 import org.example.ezyshop.repository.UserRepository;
 import org.example.ezyshop.service.AddressService;
@@ -38,12 +40,15 @@ public class AddressServiceImpl implements AddressService {
         User user = userDetails.getUser();
 
         Address address = new Address()
-                .setStreet(request.getStreet())
-                .setCity(request.getCity())
-                .setState(request.getState())
+                .setSpecificAddress(request.getSpecificAddress())
+                .setWard(request.getWard())
+                .setDistrict(request.getDistrict())
+                .setProvince(request.getProvince())
                 .setDefaultAddress(request.getDefaultAddress() != null ? request.getDefaultAddress() : false)
                 .setIsDeleted(false)
-                .setUser(user);
+                .setUser(user)
+                .setNameCustomer(request.getNameCustomer())
+                .setPhoneNumber(request.getPhoneNumber());
         address.setCreated(new Date());
         address.setLastUpdate(new Date());
 
@@ -52,6 +57,8 @@ public class AddressServiceImpl implements AddressService {
             addressList.stream().map(a -> a.setDefaultAddress(false)).toList();
         }
         AddressDTO dto = AddressMapper.MAPPER.toDTO(address);
+        String fullAddress = address.getProvince() + ", " + address.getDistrict() + ", " +  address.getWard();
+        dto.setFullAddress(fullAddress);
         repository.save(address);
 
         return new AddressResponse(true, 201, "Address added successfully").setAddressDTO(dto);
@@ -65,6 +72,10 @@ public class AddressServiceImpl implements AddressService {
 
         List<Address> addressList = repository.findByUserId(user.getId());
         List<AddressDTO> dtoList = addressList.stream().map(AddressMapper.MAPPER::toDTO).toList();
+        dtoList.stream()
+                .map(dto -> dto.setFullAddress(dto.getProvince() + ", " + dto.getDistrict() + ", " +  dto.getWard()))
+                .toList();
+
         return new AddressResponse(true, 200).setAddressDTOS(dtoList);
     }
 
@@ -86,16 +97,18 @@ public class AddressServiceImpl implements AddressService {
         }
 
         AddressMapper.MAPPER.updateAddressFromRequest(request,address);
-
+        AddressDTO dto = AddressMapper.MAPPER.toDTO(address);
+        String fullAddress = address.getProvince() + ", " + address.getDistrict() + ", " +  address.getWard();
+        dto.setFullAddress(fullAddress);
         repository.save(address);
         return new AddressResponse(true, 200, "Address updated successfully")
-                .setAddressDTO(AddressMapper.MAPPER.toDTO(address));
+                .setAddressDTO(dto);
     }
 
     @Transactional
     public BaseResponse deleteAddress(Long id) {
-        Address address = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException(false, 400, "Not found address"));
+        Address address = repository.findByIdAndIsDefaultAddressFalse(id)
+                .orElseThrow(() -> new NotFoundException(false, 400, "Not found address or address is default, could change it to un default"));
         address.setIsDeleted(true);
         repository.save(address);
         return new BaseResponse(true, 200, "Address deleted successfully");

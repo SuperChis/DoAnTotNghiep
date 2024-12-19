@@ -2,11 +2,14 @@ package org.example.ezyshop.config.service;
 
 
 import lombok.Data;
+import org.example.ezyshop.entity.StoreEntity;
 import org.example.ezyshop.entity.User;
+import org.example.ezyshop.enums.ERole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -18,12 +21,19 @@ public class UserDetailsImpl implements UserDetails {
 
     private User user;
 
+    private StoreEntity store;
 
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(User user,
                            Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
+        this.authorities = authorities;
+    }
+
+    public UserDetailsImpl(StoreEntity store,
+                           Collection<? extends GrantedAuthority> authorities) {
+        this.store = store;
         this.authorities = authorities;
     }
 
@@ -37,6 +47,14 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
+    public static UserDetailsImpl build(StoreEntity store) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(ERole.ROLE_STORE.name()));
+
+        return new UserDetailsImpl(
+                store,
+                authorities);
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
