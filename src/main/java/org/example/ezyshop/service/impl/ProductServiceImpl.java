@@ -6,6 +6,8 @@ import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
 import org.example.ezyshop.entity.Category;
 import org.example.ezyshop.entity.Product;
+import org.example.ezyshop.entity.SizeEntity;
+import org.example.ezyshop.entity.Variant;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
@@ -20,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse createProduct( ProductRequest request) {
+    public ProductResponse createProduct( ProductRequest request, MultipartFile file) {
 
         Category savedCategory = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId());
 
@@ -65,11 +69,23 @@ public class ProductServiceImpl implements ProductService {
         Product product = ProductMapper.MAPPER.toModel(request);
         product.setCategory(savedCategory);
 
-        double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
+        double specialPrice = product.getOrginalPrice() - ((product.getDiscount() * 0.01) * product.getOrginalPrice());
         product.setSpecialPrice(specialPrice);
-
+        product.setDeleted(false);
         repository.save(product);
 
+        //init variant
+        Variant variant = new Variant()
+                .setProduct(product)
+                .setColor(request.getColor());
+
+        SizeEntity sizeEntity = new SizeEntity();
+        sizeEntity.setCreated(new Date());
+        sizeEntity.setLastUpdate(new Date());
+        sizeEntity.setVariant(variant)
+                .setSize(request.getSize())
+                .setStock(request.getStock())
+                .setPrice(specialPrice);
         return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toDTO(product));
 
     }

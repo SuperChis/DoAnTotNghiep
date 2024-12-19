@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController()
 @RequestMapping("/api/product")
@@ -19,9 +20,10 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/admin/categories")
-    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest request ) {
+    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest request,
+                                                      @RequestParam(value = "file", required = false) MultipartFile file ) {
 
-        ProductResponse response = productService.createProduct(request);
+        ProductResponse response = productService.createProduct(request, file);
 
         return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
     }

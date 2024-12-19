@@ -43,6 +43,10 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", referencedColumnName = "id")
+    private StoreEntity store;
+
     public User(String username, String email, String password){
         this.username = username;
         this.email = email;

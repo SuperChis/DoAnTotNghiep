@@ -47,14 +47,6 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
-    public static UserDetailsImpl build(StoreEntity store) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(ERole.ROLE_STORE.name()));
-
-        return new UserDetailsImpl(
-                store,
-                authorities);
-    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;

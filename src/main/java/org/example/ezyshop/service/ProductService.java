@@ -3,11 +3,12 @@ package org.example.ezyshop.service;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface ProductService {
 
-    ProductResponse createProduct( ProductRequest request);
+    ProductResponse createProduct( ProductRequest request, MultipartFile file);
 
     ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
