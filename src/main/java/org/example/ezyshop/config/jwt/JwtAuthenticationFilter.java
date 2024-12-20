@@ -48,8 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Kiểm tra xem token có hết hạn không
                 if (jwtUtils.isTokenExpired(jwt)) {
                     response.setContentType("application/json");
-                    response.setStatus(HttpServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED);
-                    response.getWriter().write("{\"code\": 4001, \"message\": \"Token expired. Please refresh.\"}");
+                    response.setHeader("Access-Control-Allow-Origin", "*");
+                    response.setStatus(419);
+                    response.getWriter().write("{\"code\": 419, \"message\": \"Token expired. Please refresh.\"}");
                     return;
                 }
                 if (!jwtUtils.validateJwtToken(jwt)) {

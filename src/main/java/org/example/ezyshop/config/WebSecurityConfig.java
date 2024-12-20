@@ -85,7 +85,8 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/auth/user/**", "/api/user/**",
                                         "api/cart/user/**").hasRole("USER")
                                 .requestMatchers("/api/categories/**", "/api/product/admin/categories",
-                                        "/api/product/admin/**").hasRole("ADMIN")
+                                        "/api/product/admin/**", "/api/admin/request/**", "/api/admin/confirm/**").hasRole("ADMIN")
+                                .requestMatchers("/api/store/**").hasRole("STORE")
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                                 .anyRequest().authenticated()
                 )

@@ -18,4 +18,18 @@ public interface StoreRepository extends JpaRepository<StoreEntity, Long> {
             "from StoreEntity s " +
             "where s.isApproved = false ")
     List<StoreEntity> findAllRequestCreatedStore();
+
+    @Query("SELECT s " +
+            "FROM StoreEntity s " +
+            "WHERE s.isApproved = false " +
+            "and s.id = (?1) ")
+    StoreEntity findStoreCanBeUpToStore(Long storeId);
+
+    @Query("SELECT s " +
+            "FROM StoreEntity s " +
+            "LEFT JOIN User u ON s.user.id = u.id " +
+            "WHERE s.isApproved = true " +
+            "and s.isDeleted = false " +
+            "and u.id = (?1) ")
+    StoreEntity findByUserId(Long userId);
 }

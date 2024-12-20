@@ -5,7 +5,7 @@ import org.example.ezyshop.dto.store.StoreResponse;
 
 public interface StoreService {
     StoreResponse requestCreateStore(CreateStoreRequest request);
-    StoreResponse getCreateStoreRequest(CreateStoreRequest request);
-    StoreResponse confirmCreateStoreRequest(CreateStoreRequest request);
-    StoreResponse getStore();
+    StoreResponse getCreateStoreRequest();
+    StoreResponse confirmCreateStoreRequest(Long id);
+    StoreResponse getStoreInforByUser();
 }

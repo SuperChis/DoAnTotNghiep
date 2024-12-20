@@ -6,12 +6,10 @@ import org.example.ezyshop.dto.store.CreateStoreRequest;
 import org.example.ezyshop.dto.store.StoreDTO;
 import org.example.ezyshop.entity.Product;
 import org.example.ezyshop.entity.StoreEntity;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+@Mapper
 public interface StoreMapper {
     StoreMapper MAPPER = Mappers.getMapper(StoreMapper.class);
 
@@ -25,7 +23,8 @@ public interface StoreMapper {
     /**
      * Chuyển từ Product entity sang ProductDTO.
      */
-    @Mapping(target = "productId", source = "id")
+    @Mapping(target = "userName", source = "user.username")
+    @Mapping(target = "userEmail", source = "user.email")
     StoreDTO toDTO(StoreEntity store);
 
     /**

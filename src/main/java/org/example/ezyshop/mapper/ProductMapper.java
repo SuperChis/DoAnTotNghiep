@@ -15,7 +15,7 @@ public interface ProductMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "cartItems", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
-    @Mapping(target = "imageURL", source = "image")
+    @Mapping(target = "imageURL", ignore = true)
     Product toModel(ProductRequest request);
 
     /**
@@ -23,7 +23,6 @@ public interface ProductMapper {
      */
     @Mapping(target = "productId", source = "id")
     @Mapping(target = "productName", source = "name")
-    @Mapping(target = "image", source = "imageURL")
     @Mapping(target = "categoryDTO", source = "category")
     ProductDTO toDTO(Product product);
 
@@ -34,7 +33,7 @@ public interface ProductMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "cartItems", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
-    @Mapping(target = "imageURL", source = "image")
+    @Mapping(target = "imageURL", ignore = true)
     void updateProductFromRequest(ProductRequest request, @MappingTarget Product product);
 
 }

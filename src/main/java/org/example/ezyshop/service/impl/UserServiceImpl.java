@@ -117,6 +117,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AuthenticationFailException(false, 401, "Error: Role is not found"));
         roles.add(userRole);
         user.setRoles(roles);
+        user.setStore(false);
         repository.save(user);
 
         //Create Cart for user
@@ -284,7 +285,7 @@ public class UserServiceImpl implements UserService {
            try {
                StringBuilder resetUrlBuilder = new StringBuilder("http://");
                resetUrlBuilder.append(domainApp);
-               resetUrlBuilder.append("/auth/change-password?token=");
+               resetUrlBuilder.append("/auth/reset-password?token=");
                resetUrlBuilder.append(forgotPasswordJwt);
                String resetUrl = resetUrlBuilder.toString();
 

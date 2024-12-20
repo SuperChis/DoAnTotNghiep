@@ -1,8 +1,6 @@
 package org.example.ezyshop.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseEntity;
@@ -24,6 +22,10 @@ public class StoreEntity extends BaseEntity {
 
     @Column()
     private boolean isDeleted;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     private boolean isApproved;
 }

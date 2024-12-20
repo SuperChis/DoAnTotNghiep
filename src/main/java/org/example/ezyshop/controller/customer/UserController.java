@@ -3,12 +3,16 @@ package org.example.ezyshop.controller.customer;
 import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.address.AddressRequest;
 import org.example.ezyshop.dto.address.AddressResponse;
+import org.example.ezyshop.dto.store.CreateStoreRequest;
+import org.example.ezyshop.dto.store.StoreResponse;
 import org.example.ezyshop.dto.user.UserRequest;
 import org.example.ezyshop.dto.user.UserResponse;
 import org.example.ezyshop.service.AddressService;
 import org.example.ezyshop.service.FileStorageService;
+import org.example.ezyshop.service.StoreService;
 import org.example.ezyshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +28,9 @@ public class UserController {
 
     @Autowired
     FileStorageService storageService;
+
+    @Autowired
+    private StoreService storeService;
 
     @PutMapping("/profile")
     public UserResponse updateProfile(@RequestBody UserRequest request) {
@@ -73,5 +80,11 @@ public class UserController {
     @DeleteMapping("/address/{id}")
     public BaseResponse deleteAddress(@PathVariable Long id) {
         return addressService.deleteAddress(id);
+    }
+
+    @PostMapping("/create-store-request")
+    public ResponseEntity<StoreResponse> requestCreateStore(@RequestBody CreateStoreRequest request) {
+        StoreResponse response = storeService.requestCreateStore(request);
+        return ResponseEntity.ok(response);
     }
 }
