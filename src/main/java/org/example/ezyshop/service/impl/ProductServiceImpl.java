@@ -9,10 +9,7 @@ import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
-import org.example.ezyshop.repository.CartRepository;
-import org.example.ezyshop.repository.CategoryRepository;
-import org.example.ezyshop.repository.ProductRepository;
-import org.example.ezyshop.repository.StoreRepository;
+import org.example.ezyshop.repository.*;
 import org.example.ezyshop.service.FileStorageService;
 import org.example.ezyshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +42,9 @@ public class ProductServiceImpl implements ProductService {
     private StoreRepository storeRepository;
 
     private FileStorageService fileService;
+
+    @Autowired
+    private VariantRepository variantRepository;
 
 //    @Autowired
 //    private CartService cartService;
@@ -112,6 +111,10 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
                 .collect(Collectors.toList());
 
+        List<Long> productIds = products.stream().map(Product::getId).collect(Collectors.toList());
+
+        List<Variant> variants = variantRepository.findByProductIdIn(productIds);
+
         return new ProductResponse(true, 200)
                 .setDtoList(productDTOs)
                 .setPageDto(PageDto.populatePageDto(pageProducts));
@@ -131,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
-        Page<Product> pageProducts = repository.findByCategoryAnđIsDeletedFalse(categoryId, pageable);
+        Page<Product> pageProducts = repository.findByCategoryAndIsDeletedFalse(categoryId, pageable);
         List<Product> products = pageProducts.getContent();
         List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
                 .collect(Collectors.toList());

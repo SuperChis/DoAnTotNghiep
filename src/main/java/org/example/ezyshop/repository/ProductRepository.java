@@ -1,6 +1,5 @@
 package org.example.ezyshop.repository;
 
-import org.example.ezyshop.entity.Category;
 import org.example.ezyshop.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,8 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -31,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE p.category.id = :categoryId " +
             "AND p.isDeleted = false")
-    Page<Product> findByCategoryAnđIsDeletedFalse(@Param("categoryId") Long categoryId, Pageable pageable);
+    Page<Product> findByCategoryAndIsDeletedFalse(@Param("categoryId") Long categoryId, Pageable pageable);
 
     Page<Product> findByIsDeletedFalse(Pageable pageable);
 

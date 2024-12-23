@@ -37,7 +37,7 @@ public class ProductController {
 
         ProductResponse productResponse = productService.getAllProducts(pageNumber, pageSize, sortBy, sortOrder);
 
-        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.FOUND);
+        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
     @GetMapping("/public/categories/{categoryId}")
@@ -50,7 +50,7 @@ public class ProductController {
         ProductResponse productResponse = productService.searchByCategory(categoryId, pageNumber, pageSize, sortBy,
                 sortOrder);
 
-        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.FOUND);
+        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
     @GetMapping("/public/search/{keyword}")
@@ -63,7 +63,7 @@ public class ProductController {
         ProductResponse productResponse = productService.searchProductByKeyword(keyword, pageNumber, pageSize, sortBy,
                 sortOrder);
 
-        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.FOUND);
+        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
     @PutMapping("/admin/{productId}")

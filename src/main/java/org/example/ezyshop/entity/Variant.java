@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -24,4 +27,7 @@ public class Variant extends BaseEntity {
     private String imageUrl;
 
     private boolean isDeleted;
+
+    @OneToMany(mappedBy = "variant", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private List<SizeEntity> sizes = new ArrayList<>();
 }

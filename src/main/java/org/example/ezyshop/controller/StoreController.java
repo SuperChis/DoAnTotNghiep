@@ -3,11 +3,14 @@ package org.example.ezyshop.controller;
 import jakarta.validation.Valid;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
+import org.example.ezyshop.dto.size.SizeRequest;
+import org.example.ezyshop.dto.size.SizeResponse;
 import org.example.ezyshop.dto.store.CreateStoreRequest;
 import org.example.ezyshop.dto.store.StoreResponse;
 import org.example.ezyshop.dto.variant.VariantRequest;
 import org.example.ezyshop.dto.variant.VariantResponse;
 import org.example.ezyshop.service.ProductService;
+import org.example.ezyshop.service.SizeService;
 import org.example.ezyshop.service.StoreService;
 import org.example.ezyshop.service.VariantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,9 @@ public class StoreController {
 
     @Autowired
     private VariantService variantService;
+
+    @Autowired
+    private SizeService sizeService;
 
     @GetMapping("/info")
     public ResponseEntity<StoreResponse> getStoreInforByUser() {
@@ -64,8 +70,27 @@ public class StoreController {
     }
 
     @DeleteMapping("/variant/{id}")
-    public ResponseEntity<VariantResponse
-            > deleteVariant(@PathVariable Long id) {
+    public ResponseEntity<VariantResponse> deleteVariant(@PathVariable Long id) {
         return ResponseEntity.ok(variantService.delete(id));
+    }
+
+    @GetMapping("/size/{variantId}")
+    public SizeResponse getAllSizes(@PathVariable("variantId") Long variantId) {
+        return sizeService.getAllSizes(variantId);
+    }
+
+    @PostMapping("/size/")
+    public SizeResponse createSize(@RequestBody SizeRequest sizeRequest) {
+        return sizeService.createSize(sizeRequest);
+    }
+
+    @PutMapping("/size/{id}")
+    public SizeResponse updateSize(@PathVariable Long id, @RequestBody SizeRequest sizeRequest) {
+        return sizeService.updateSize(id, sizeRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteSize(@PathVariable Long id) {
+        sizeService.deleteSize(id);
     }
 }

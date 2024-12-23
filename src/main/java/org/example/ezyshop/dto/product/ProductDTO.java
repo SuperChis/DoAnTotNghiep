@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.example.ezyshop.dto.category.CategoryDTO;
 import org.example.ezyshop.entity.Variant;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,5 +21,5 @@ public class ProductDTO {
     private double discount;
     private double specialPrice;
     private CategoryDTO categoryDTO;
-    private Variant variant;
+    private List<Variant> variant;
 }
