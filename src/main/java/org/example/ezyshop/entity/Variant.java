@@ -14,12 +14,14 @@ import org.example.ezyshop.base.BaseEntity;
 @Accessors(chain = true)
 public class Variant extends BaseEntity {
 
-    @Column(name = "color", nullable = false)
-    private String color;
+    @Column(name = "attribute", nullable = false)
+    private String attribute;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     private String imageUrl;
+
+    private boolean isDeleted;
 }

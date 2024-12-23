@@ -1,25 +1,27 @@
 package org.example.ezyshop.service.impl;
 
+import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.product.ProductDTO;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
-import org.example.ezyshop.entity.Category;
-import org.example.ezyshop.entity.Product;
-import org.example.ezyshop.entity.SizeEntity;
-import org.example.ezyshop.entity.Variant;
+import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
 import org.example.ezyshop.repository.CartRepository;
 import org.example.ezyshop.repository.CategoryRepository;
 import org.example.ezyshop.repository.ProductRepository;
+import org.example.ezyshop.repository.StoreRepository;
+import org.example.ezyshop.service.FileStorageService;
 import org.example.ezyshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +42,11 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private StoreRepository storeRepository;
+
+    private FileStorageService fileService;
+
 //    @Autowired
 //    private CartService cartService;
 //
@@ -53,6 +60,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse createProduct( ProductRequest request, MultipartFile file) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        StoreEntity store = storeRepository.findByUserId(user.getId());
+        if (store == null) {
+            throw new NotFoundException(false, 404, "Not found store");
+        }
 
         Category savedCategory = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId());
 
@@ -72,20 +86,14 @@ public class ProductServiceImpl implements ProductService {
         double specialPrice = product.getOrginalPrice() - ((product.getDiscount() * 0.01) * product.getOrginalPrice());
         product.setSpecialPrice(specialPrice);
         product.setDeleted(false);
+        product.setStore(store);
+        try {
+            product.setImageURL(fileService.storeFile(file));
+        } catch (Exception e) {
+            throw new RequetFailException("There was an error uploading the photo, please reselect the photo");
+        }
         repository.save(product);
 
-        //init variant
-        Variant variant = new Variant()
-                .setProduct(product)
-                .setColor(request.getColor());
-
-        SizeEntity sizeEntity = new SizeEntity();
-        sizeEntity.setCreated(new Date());
-        sizeEntity.setLastUpdate(new Date());
-        sizeEntity.setVariant(variant)
-                .setSize(request.getSize())
-                .setStock(request.getStock())
-                .setPrice(specialPrice);
         return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toDTO(product));
 
     }

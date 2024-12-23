@@ -19,14 +19,14 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @PostMapping("/admin/categories")
-    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest request,
-                                                      @RequestParam(value = "file", required = false) MultipartFile file ) {
-
-        ProductResponse response = productService.createProduct(request, file);
-
-        return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
-    }
+//    @PostMapping("/admin/categories")
+//    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest request,
+//                                                      @RequestParam(value = "file", required = false) MultipartFile file ) {
+//
+//        ProductResponse response = productService.createProduct(request, file);
+//
+//        return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
+//    }
 
     @GetMapping("/public")
     public ResponseEntity<ProductResponse> getAllProducts(

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.ezyshop.dto.category.CategoryDTO;
+import org.example.ezyshop.entity.Variant;
 
 @Data
 @NoArgsConstructor
@@ -11,11 +12,12 @@ import org.example.ezyshop.dto.category.CategoryDTO;
 public class ProductDTO {
     private Long productId;
     private String productName;
-    private String image;
+    private String thumbnail;
     private String description;
     private Integer quantity;
     private double price;
     private double discount;
     private double specialPrice;
     private CategoryDTO categoryDTO;
+    private Variant variant;
 }
