@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @PutMapping("/update-avatar")
-    public UserResponse updateAvart(@RequestParam("file") MultipartFile file) {
+    public UserResponse updateAvatar(@RequestParam("file") MultipartFile file) {
         try {
             // Lưu file và lấy URL
             String fileUrl = storageService.storeFile(file);

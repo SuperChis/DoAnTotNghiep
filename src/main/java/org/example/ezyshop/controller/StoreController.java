@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/store")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class StoreController {
     @Autowired
     private StoreService service;
@@ -40,9 +41,9 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/add-product")
-    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest request,
-                                                      @RequestParam(value = "file", required = false) MultipartFile file ) {
+    @PostMapping("/product/add")
+    public ResponseEntity<ProductResponse> addProduct(@RequestPart(value = "file", required = false) MultipartFile file,
+                                                      @RequestPart("request") ProductRequest request) {
 
         ProductResponse response = productService.createProduct(request, file);
 
@@ -55,7 +56,7 @@ public class StoreController {
     }
 
 
-    @PostMapping
+    @PostMapping("/variant/add")
     public ResponseEntity<VariantResponse> createVariant(@RequestBody VariantRequest request,
                                                          @RequestParam(value = "file", required = false) MultipartFile file) {
 

@@ -11,7 +11,7 @@ public class ProductRequest {
     private double discount;
     private double specialPrice;
     private Long categoryId;
-    private String attribute; //init variant
-    private String size; //init sizeEntity
-    private Integer stock;
+//    private String attribute; //init variant
+//    private String size; //init sizeEntity
+//    private Integer stock;
 }
