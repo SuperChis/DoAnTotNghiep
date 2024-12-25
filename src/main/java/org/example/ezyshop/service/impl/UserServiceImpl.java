@@ -232,6 +232,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = userOptional.get();
         user.setPassword(encoder.encode(request.getNewPassword()));
+        user.setLastUpdate(new Date());
         repository.save(user);
         return new BaseResponse(true, 200, "change password succesfully");
     }
@@ -345,6 +346,7 @@ public class UserServiceImpl implements UserService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
         UserMapper.Mapper.updateUserFromRequest(request, user);
+        user.setLastUpdate(new Date());
         repository.save(user);
         return new UserResponse(true, 200)
                 .setUserDTO(UserMapper.Mapper.toDTO(user));

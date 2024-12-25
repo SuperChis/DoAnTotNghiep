@@ -14,6 +14,7 @@ import org.example.ezyshop.service.SizeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -41,6 +42,8 @@ public class SizeServiceImpl implements SizeService {
             throw new NotFoundException(false, 404, "Variant not exists");
         }
         SizeEntity sizeEntity = SizeMapper.INSTANCE.toEntity(sizeRequest);
+        sizeEntity.setCreated(new Date());
+        sizeEntity.setLastUpdate(new Date());
         SizeEntity savedEntity = repository.save(sizeEntity);
         return new SizeResponse(true, 200).setDto(SizeMapper.INSTANCE.toDTO(savedEntity));
     }
@@ -49,6 +52,7 @@ public class SizeServiceImpl implements SizeService {
         SizeEntity existingEntity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Size not found with id: " + id));
         SizeMapper.INSTANCE.updateEntityFromRequest(sizeRequest, existingEntity);
+        existingEntity.setLastUpdate(new Date());
         SizeEntity updatedEntity = repository.save(existingEntity);
         return new SizeResponse(true, 200).setDto(SizeMapper.INSTANCE.toDTO(updatedEntity));
     }

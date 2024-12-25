@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,7 +88,8 @@ public class ProductServiceImpl implements ProductService {
         product.setSpecialPrice(specialPrice);
         product.setDeleted(false);
         product.setStore(store);
-
+        product.setCreated(new Date());
+        product.setLastUpdate(new Date());
         repository.save(product);
 
         return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toDTO(product));
@@ -106,6 +108,7 @@ public class ProductServiceImpl implements ProductService {
             throw new RequetFailException("Unexpected error occurred while uploading the photo");
         }
         product.setImageURL(url);
+        product.setLastUpdate(new Date());
         repository.save(product);
         return new ProductResponse(true, 200, "add thumbnail successfully");
     }
@@ -177,7 +180,7 @@ public class ProductServiceImpl implements ProductService {
         }
         double specialPrice = request.getPrice() - ((request.getDiscount() * 0.01) * request.getPrice());
         productFromDB.setSpecialPrice(specialPrice);
-
+        productFromDB.setLastUpdate(new Date());
         repository.save(productFromDB);
 
 //        List<Cart> carts = cartRepo.findCartsByProductId(productId);
