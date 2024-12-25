@@ -6,12 +6,10 @@ import org.example.ezyshop.dto.variant.VariantDTO;
 import org.example.ezyshop.dto.variant.VariantRequest;
 import org.example.ezyshop.entity.Product;
 import org.example.ezyshop.entity.Variant;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+@Mapper
 public interface VariantMapper {
 
     VariantMapper MAPPER = Mappers.getMapper(VariantMapper.class);

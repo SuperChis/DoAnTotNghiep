@@ -23,7 +23,8 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
             "left join User u on a.user.id = u.id " +
             "where u.isDeleted = false " +
             "and a.isDeleted = false " +
-            "and u.id = (?1) ")
+            "and u.id = (?1) " +
+            "order by a.defaultAddress desc, a.lastUpdate desc ")
     List<Address> findByUserId(Long userId);
 
     @Query("SELECT a " +

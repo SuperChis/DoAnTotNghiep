@@ -42,12 +42,33 @@ public class StoreController {
     }
 
     @PostMapping("/product/add")
-    public ResponseEntity<ProductResponse> addProduct(@RequestPart(value = "file", required = false) MultipartFile file,
-                                                      @RequestPart("request") ProductRequest request) {
+    public ResponseEntity<ProductResponse> addProduct(@RequestBody ProductRequest request) {
 
-        ProductResponse response = productService.createProduct(request, file);
+        ProductResponse response = productService.createProduct(request);
 
         return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/product/thumbnail/{productId}")
+    public ResponseEntity<ProductResponse> updateThumbnailProduct(@RequestParam(value = "file", required = false) MultipartFile file,
+                                                                  @PathVariable("productId") Long producId) {
+
+        ProductResponse response = productService.addThumbnailProduct(producId, file);
+
+        return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/product/{productId}")
+    public ResponseEntity<ProductResponse> updateProduct(@RequestBody ProductRequest request,
+                                                         @PathVariable Long productId) {
+        ProductResponse updatedProduct = productService.updateProduct(productId, request);
+
+        return new ResponseEntity<ProductResponse>(updatedProduct, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/product/{productId}")
+    public ProductResponse deleteProductByCategory(@PathVariable Long productId) {
+        return productService.deleteProduct(productId);
     }
 
     @GetMapping("/variant/{productId}")
@@ -55,12 +76,17 @@ public class StoreController {
         return variantService.getAllVariants(productId);
     }
 
-
     @PostMapping("/variant/add")
-    public ResponseEntity<VariantResponse> createVariant(@RequestBody VariantRequest request,
-                                                         @RequestParam(value = "file", required = false) MultipartFile file) {
+    public ResponseEntity<VariantResponse> createVariant(@RequestBody VariantRequest request) {
 
-        return ResponseEntity.status(201).body(variantService.createVariant(request, file));
+        return ResponseEntity.status(201).body(variantService.createVariant(request));
+    }
+
+    @PutMapping("/variant/image/{id}")
+    public ResponseEntity<VariantResponse> addVariantImg(@RequestParam(value = "file", required = false) MultipartFile file,
+                                                         @PathVariable("id") Long id) {
+
+        return ResponseEntity.status(201).body(variantService.addVariantImage(id, file));
     }
 
     @PutMapping("variant/{id}")

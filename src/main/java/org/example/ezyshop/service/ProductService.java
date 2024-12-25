@@ -8,7 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductService {
 
-    ProductResponse createProduct( ProductRequest request, MultipartFile file);
+    ProductResponse createProduct( ProductRequest request);
+
+    ProductResponse addThumbnailProduct(Long productId, MultipartFile file);
 
     ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 

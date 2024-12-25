@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -31,6 +32,7 @@ public class VariantServiceImpl implements VariantService {
     @Autowired
     SizeRepository sizeRepository;
 
+    @Autowired
     FileStorageService fileStorageService;
 
     public VariantResponse getAllVariants(Long productId) {
@@ -41,18 +43,34 @@ public class VariantServiceImpl implements VariantService {
 
 
     @Transactional
-    public VariantResponse createVariant(VariantRequest request, MultipartFile file) {
+    public VariantResponse createVariant(VariantRequest request) {
         Product product = productRepository.findByIdAndIsDeletedFalse(request.getProductId());
         if (product == null) {
             throw new NotFoundException(false, 404, "Product not exists");
         }
         Variant variant = new Variant();
         variant.setAttribute(request.getAttribute());
+        variant.setProduct(product);
+        variant.setCreated(new Date());
+        variant.setLastUpdate(new Date());
+        variant.setDeleted(false);
+        repository.save(variant);
+        return new VariantResponse(true, 200).setDto(VariantMapper.MAPPER.toDTO(variant));
+    }
+
+    @Transactional
+    public VariantResponse addVariantImage(Long id, MultipartFile file) {
+        Variant variant = repository.findByIdAndIsDeletedFalse(id);
+        String url;
         try {
-            variant.setImageUrl(fileStorageService.storeFile(file));
+            url = fileStorageService.storeFile(file);
+        } catch (RequetFailException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RequetFailException("There was an error uploading the photo, please reselect the photo");
+            throw new RequetFailException("upload error");
         }
+        variant.setImageUrl(url);
+        variant.setLastUpdate(new Date());
         repository.save(variant);
         return new VariantResponse(true, 200).setDto(VariantMapper.MAPPER.toDTO(variant));
     }
@@ -64,6 +82,7 @@ public class VariantServiceImpl implements VariantService {
             throw new NotFoundException(false, 404, "Variant not exists");
         }
         VariantMapper.MAPPER.updateVariantFromRequest(request, variant);
+        variant.setLastUpdate(new Date());
         repository.save(variant);
         return new VariantResponse(true, 200).setDto(VariantMapper.MAPPER.toDTO(variant));
     }

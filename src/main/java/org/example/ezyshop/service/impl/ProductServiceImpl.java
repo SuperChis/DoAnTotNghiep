@@ -41,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private StoreRepository storeRepository;
 
+    @Autowired
     private FileStorageService fileService;
 
     @Autowired
@@ -58,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse createProduct( ProductRequest request, MultipartFile file) {
+    public ProductResponse createProduct( ProductRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
@@ -86,15 +87,27 @@ public class ProductServiceImpl implements ProductService {
         product.setSpecialPrice(specialPrice);
         product.setDeleted(false);
         product.setStore(store);
-        try {
-            product.setImageURL(fileService.storeFile(file));
-        } catch (Exception e) {
-            throw new RequetFailException("There was an error uploading the photo, please reselect the photo");
-        }
+
         repository.save(product);
 
         return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toDTO(product));
 
+    }
+
+    @Override
+    public ProductResponse addThumbnailProduct(Long productId, MultipartFile file) {
+        Product product = repository.findByIdAndIsDeletedFalse(productId);
+        String url;
+        try {
+            url = fileService.storeFile(file);
+        } catch (RequetFailException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RequetFailException("Unexpected error occurred while uploading the photo");
+        }
+        product.setImageURL(url);
+        repository.save(product);
+        return new ProductResponse(true, 200, "add thumbnail successfully");
     }
 
     @Override
@@ -212,8 +225,8 @@ public class ProductServiceImpl implements ProductService {
 
         Product productInDB = repository.findByIdAndIsDeletedFalse(productId);
 
-        if (productInDB != null) {
-            throw new RequetFailException(false, 409, "product exists");
+        if (productInDB == null) {
+            throw new RequetFailException(false, 409, "product not exists");
         }
 
         productInDB.setDeleted(true);

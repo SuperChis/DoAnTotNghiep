@@ -10,7 +10,9 @@ public interface VariantService {
     public VariantResponse getAllVariants(Long productId);
 
 
-    public VariantResponse createVariant(VariantRequest request, MultipartFile file);
+    public VariantResponse createVariant(VariantRequest request);
+
+    public VariantResponse addVariantImage(Long id, MultipartFile file);
 
     public VariantResponse updateVariant(Long id, VariantRequest request);
 

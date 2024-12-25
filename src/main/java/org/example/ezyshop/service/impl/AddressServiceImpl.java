@@ -97,6 +97,7 @@ public class AddressServiceImpl implements AddressService {
         }
 
         AddressMapper.MAPPER.updateAddressFromRequest(request,address);
+        address.setLastUpdate(new Date());
         AddressDTO dto = AddressMapper.MAPPER.toDTO(address);
         String fullAddress = address.getProvince() + ", " + address.getDistrict() + ", " +  address.getWard();
         dto.setFullAddress(fullAddress);
