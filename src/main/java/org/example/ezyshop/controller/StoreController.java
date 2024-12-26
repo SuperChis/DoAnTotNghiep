@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/store")
+@RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class StoreController {
     @Autowired
@@ -35,21 +35,21 @@ public class StoreController {
     @Autowired
     private SizeService sizeService;
 
-    @GetMapping("/info")
+    @GetMapping("/store/info")
     public ResponseEntity<StoreResponse> getStoreInforByUser() {
         StoreResponse response = service.getStoreInforByUser();
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/product/add")
-    public ResponseEntity<ProductResponse> addProduct(@RequestBody ProductRequest request) {
+    @PostMapping("/store/product/add")
+    public ResponseEntity<ProductResponse> addProduct(@ModelAttribute ProductRequest request) {
 
         ProductResponse response = productService.createProduct(request);
 
         return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/product/thumbnail/{productId}")
+    @PutMapping("/store/product/thumbnail/{productId}")
     public ResponseEntity<ProductResponse> updateThumbnailProduct(@RequestParam(value = "file", required = false) MultipartFile file,
                                                                   @PathVariable("productId") Long producId) {
 
@@ -58,7 +58,7 @@ public class StoreController {
         return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/product/{productId}")
+    @PutMapping("/store/product/{productId}")
     public ResponseEntity<ProductResponse> updateProduct(@RequestBody ProductRequest request,
                                                          @PathVariable Long productId) {
         ProductResponse updatedProduct = productService.updateProduct(productId, request);
@@ -66,57 +66,57 @@ public class StoreController {
         return new ResponseEntity<ProductResponse>(updatedProduct, HttpStatus.OK);
     }
 
-    @DeleteMapping("/product/{productId}")
+    @DeleteMapping("/store/product/{productId}")
     public ProductResponse deleteProductByCategory(@PathVariable Long productId) {
         return productService.deleteProduct(productId);
     }
 
-    @GetMapping("/variant/{productId}")
+    @GetMapping("/public/variant/{productId}")
     public VariantResponse getAllVariants(@PathVariable Long productId) {
         return variantService.getAllVariants(productId);
     }
 
-    @PostMapping("/variant/add")
-    public ResponseEntity<VariantResponse> createVariant(@RequestBody VariantRequest request) {
+    @PostMapping("/store/variant/add")
+    public ResponseEntity<VariantResponse> createVariant(@ModelAttribute VariantRequest request) {
 
         return ResponseEntity.status(201).body(variantService.createVariant(request));
     }
 
-    @PutMapping("/variant/image/{id}")
+    @PutMapping("/store/variant/image/{id}")
     public ResponseEntity<VariantResponse> addVariantImg(@RequestParam(value = "file", required = false) MultipartFile file,
                                                          @PathVariable("id") Long id) {
 
         return ResponseEntity.status(201).body(variantService.addVariantImage(id, file));
     }
 
-    @PutMapping("variant/{id}")
+    @PutMapping("/store/variant/{id}")
     public ResponseEntity<VariantResponse> updateVariant(@PathVariable Long id,
                                                          @RequestBody VariantRequest request) {
 
         return ResponseEntity.ok(variantService.updateVariant(id, request));
     }
 
-    @DeleteMapping("/variant/{id}")
+    @DeleteMapping("/store/variant/{id}")
     public ResponseEntity<VariantResponse> deleteVariant(@PathVariable Long id) {
         return ResponseEntity.ok(variantService.delete(id));
     }
 
-    @GetMapping("/size/{variantId}")
+    @GetMapping("/public/size/{variantId}")
     public SizeResponse getAllSizes(@PathVariable("variantId") Long variantId) {
         return sizeService.getAllSizes(variantId);
     }
 
-    @PostMapping("/size")
+    @PostMapping("/store/size")
     public SizeResponse createSize(@RequestBody SizeRequest sizeRequest) {
         return sizeService.createSize(sizeRequest);
     }
 
-    @PutMapping("/size/{id}")
+    @PutMapping("/store/size/{id}")
     public SizeResponse updateSize(@PathVariable Long id, @RequestBody SizeRequest sizeRequest) {
         return sizeService.updateSize(id, sizeRequest);
     }
 
-    @DeleteMapping("size/{id}")
+    @DeleteMapping("/store/size/{id}")
     public SizeResponse deleteSize(@PathVariable Long id) {
         return sizeService.deleteSize(id);
     }

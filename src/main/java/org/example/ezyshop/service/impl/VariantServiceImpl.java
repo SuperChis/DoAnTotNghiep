@@ -54,6 +54,17 @@ public class VariantServiceImpl implements VariantService {
         variant.setCreated(new Date());
         variant.setLastUpdate(new Date());
         variant.setDeleted(false);
+
+        String url;
+        try {
+            url = fileStorageService.storeFile(request.getFile());
+        } catch (RequetFailException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RequetFailException("upload error");
+        }
+        variant.setImageUrl(url);
+
         repository.save(variant);
         return new VariantResponse(true, 200).setDto(VariantMapper.MAPPER.toDTO(variant));
     }

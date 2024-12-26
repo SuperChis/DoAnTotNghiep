@@ -89,6 +89,17 @@ public class ProductServiceImpl implements ProductService {
         product.setStore(store);
         product.setCreated(new Date());
         product.setLastUpdate(new Date());
+
+        String url;
+        try {
+            url = fileService.storeFile(request.getFile());
+        } catch (RequetFailException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RequetFailException("Unexpected error occurred while uploading the photo");
+        }
+        product.setImageURL(url);
+
         repository.save(product);
 
         return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toDTO(product));

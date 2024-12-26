@@ -1,6 +1,7 @@
 package org.example.ezyshop.dto.product;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ProductRequest {
@@ -12,4 +13,5 @@ public class ProductRequest {
     private double specialPrice;
     private String summary;
     private Long categoryId;
+    private MultipartFile file;
 }
