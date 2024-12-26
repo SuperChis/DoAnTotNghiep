@@ -21,8 +21,8 @@ public class Category extends BaseEntity {
     @Column()
     private String description;
 
-    @OneToMany(mappedBy = "category", cascade =  CascadeType.ALL)
-    List<Product> products;
+//    @OneToMany(mappedBy = "category", cascade =  CascadeType.ALL)
+//    List<Product> products;
 
     private boolean isDeleted;
 }

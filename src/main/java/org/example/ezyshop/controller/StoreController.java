@@ -106,7 +106,7 @@ public class StoreController {
         return sizeService.getAllSizes(variantId);
     }
 
-    @PostMapping("/size/")
+    @PostMapping("/size")
     public SizeResponse createSize(@RequestBody SizeRequest sizeRequest) {
         return sizeService.createSize(sizeRequest);
     }
@@ -116,8 +116,8 @@ public class StoreController {
         return sizeService.updateSize(id, sizeRequest);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteSize(@PathVariable Long id) {
-        sizeService.deleteSize(id);
+    @DeleteMapping("size/{id}")
+    public SizeResponse deleteSize(@PathVariable Long id) {
+        return sizeService.deleteSize(id);
     }
 }

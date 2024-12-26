@@ -1,11 +1,18 @@
 package org.example.ezyshop.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseEntity;
+import org.example.ezyshop.enums.ShipmentStatus;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = true)
 public class Shipment extends BaseEntity {
 
     @Column(name = "name", nullable = false, length = 255)
@@ -17,11 +24,8 @@ public class Shipment extends BaseEntity {
     @Column(name = "price",nullable = false)
     private double price;
 
-    @Column(name = "status", nullable = true)
-    private boolean status;
+    @Column()
+    @Enumerated(EnumType.STRING)
+    private ShipmentStatus status;
 
-    @PrePersist
-    void createdAt() {
-        this.status = true;
-    }
 }

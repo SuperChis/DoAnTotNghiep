@@ -23,8 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,13 +122,21 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> pageProducts = repository.findByIsDeletedFalse(pageable);
 
         List<Product> products = pageProducts.getContent();
-
+        Map<Long, List<Variant>> mapVariantByProductId = products.stream().collect(Collectors.toMap(
+                Product::getId,
+                Product::getVariants
+        ));
         List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
                 .collect(Collectors.toList());
 
-        List<Long> productIds = products.stream().map(Product::getId).collect(Collectors.toList());
+        productDTOs = productDTOs.stream()
+                .peek(dto -> dto.setVariant(Optional.ofNullable(mapVariantByProductId.get(dto.getProductId()))
+                        .orElse(Collections.emptyList())))
+                .collect(Collectors.toList());
 
-        List<Variant> variants = variantRepository.findByProductIdIn(productIds);
+//        List<Long> productIds = products.stream().map(Product::getId).collect(Collectors.toList());
+//
+//        List<Variant> variants = variantRepository.findByProductIdIn(productIds);
 
         return new ProductResponse(true, 200)
                 .setDtoList(productDTOs)

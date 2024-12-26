@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import net.minidev.json.annotate.JsonIgnore;
 import org.example.ezyshop.base.BaseEntity;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class Product extends BaseEntity {
     @Column(name = "image")
     private String imageURL;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;

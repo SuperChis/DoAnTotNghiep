@@ -27,7 +27,7 @@ public class Order extends BaseEntity {
 
     private Double totalAmount;
 
-    private String orderStatus;
+    private String status;
 
     private boolean isDeleted;
 }
