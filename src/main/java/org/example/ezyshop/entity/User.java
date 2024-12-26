@@ -18,17 +18,20 @@ import java.util.Set;
 @Accessors(chain = true)
 @Table(name = "users")
 public class User extends BaseEntity {
-
+    @Column(nullable = false)
     private String username;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     private String sex;
 
     private Date birthDay;
 
+    @Column(nullable = false)
     private String phoneNumber;
 
     private String avatarUrl;
