@@ -30,6 +30,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.isDeleted = false")
     Page<Product> findByCategoryAndIsDeletedFalse(@Param("categoryId") Long categoryId, Pageable pageable);
 
+    @Query("SELECT p " +
+            "FROM Product p " +
+            "LEFT JOIN StoreEntity st ON p.store.id = st.id " +
+            "WHERE p.store.id = :storeId " +
+            "AND p.isDeleted = false " +
+            "AND st.isDeleted = false")
+    Page<Product> findByStoreAndIsDeletedFalse(@Param("storeId") Long storeId, Pageable pageable);
+
     Page<Product> findByIsDeletedFalse(Pageable pageable);
 
     @Query(value = "SELECT p " +

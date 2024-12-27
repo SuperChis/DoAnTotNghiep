@@ -179,6 +179,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponse searchByStore(Long storeId, Integer pageNumber, Integer pageSize, String sortBy,
+                                            String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Product> pageProducts = repository.findByStoreAndIsDeletedFalse(storeId, pageable);
+        List<Product> products = pageProducts.getContent();
+        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
+                .collect(Collectors.toList());
+
+        return new ProductResponse(true, 200)
+                .setDtoList(productDTOs)
+                .setPageDto(PageDto.populatePageDto(pageProducts));
+    }
+
+    @Override
     @Transactional
     public ProductResponse updateProduct(Long productId, ProductRequest request) {
         Product productFromDB = repository.findByIdAndIsDeletedFalse(productId);

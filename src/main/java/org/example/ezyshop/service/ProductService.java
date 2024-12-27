@@ -17,6 +17,9 @@ public interface ProductService {
     ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
                                      String sortOrder);
 
+    ProductResponse searchByStore(Long storeId, Integer pageNumber, Integer pageSize, String sortBy,
+                                     String sortOrder);
+
     ProductResponse updateProduct(Long productId, ProductRequest request);
 
 //    ProductResponse updateProductImage(Long productId, MultipartFile image) throws IOException;

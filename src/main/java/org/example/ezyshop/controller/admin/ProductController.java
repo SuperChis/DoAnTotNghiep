@@ -53,6 +53,19 @@ public class ProductController {
         return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/public/store/{storeId}")
+    public ResponseEntity<ProductResponse> getProductsByStore(@PathVariable Long storeId,
+                                                                 @RequestParam(name = "pageNumber", defaultValue = Constants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                 @RequestParam(name = "pageSize", defaultValue = Constants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                 @RequestParam(name = "sortBy", defaultValue = Constants.SORT_BY, required = false) String sortBy,
+                                                                 @RequestParam(name = "sortOrder", defaultValue = Constants.SORT_DIR, required = false) String sortOrder) {
+
+        ProductResponse productResponse = productService.searchByStore(storeId, pageNumber, pageSize, sortBy,
+                sortOrder);
+
+        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
+    }
+
     @GetMapping("/public/search/{keyword}")
     public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword,
                                                                 @RequestParam(name = "pageNumber", defaultValue = Constants.PAGE_NUMBER, required = false) Integer pageNumber,

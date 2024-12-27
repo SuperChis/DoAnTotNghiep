@@ -32,4 +32,6 @@ public interface StoreRepository extends JpaRepository<StoreEntity, Long> {
             "and s.isDeleted = false " +
             "and u.id = (?1) ")
     StoreEntity findByUserId(Long userId);
+
+
 }
