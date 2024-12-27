@@ -36,6 +36,14 @@ public class CategoryController {
         return new ResponseEntity<CategoryResponse>(categoryResponse, HttpStatus.FOUND);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<CategoryResponse> getAllCategory() {
+
+        CategoryResponse categoryResponse = service.getAllCategory();
+
+        return new ResponseEntity<CategoryResponse>(categoryResponse, HttpStatus.OK);
+    }
+
     @PutMapping("/admin/{categoryId}")
     public ResponseEntity<CategoryResponse> updateCategory(@RequestBody CategoryRequest request,
                                                       @PathVariable Long categoryId) {

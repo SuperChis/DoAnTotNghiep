@@ -69,6 +69,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public CategoryResponse getAllCategory() {
+        List<Category> categories = repository.findAll();
+
+        List<CategoryDTO> dtoList = categories.stream()
+                .map(CategoryMapper.MAPPER::toDTO)
+                .collect(Collectors.toList());
+
+        return new CategoryResponse(true, 200)
+                .setDtoList(dtoList);
+    }
+
+    @Override
     @Transactional
     public CategoryResponse updateCategory(CategoryRequest request, Long categoryId) {
         Category savedCategory = repository.findByIdAndIsDeletedFalse(categoryId);
