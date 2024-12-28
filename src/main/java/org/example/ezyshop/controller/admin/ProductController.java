@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.ezyshop.constant.Constants;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
+import org.example.ezyshop.service.AmazonClient;
 import org.example.ezyshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,6 +63,14 @@ public class ProductController {
 
         ProductResponse productResponse = productService.searchByStore(storeId, pageNumber, pageSize, sortBy,
                 sortOrder);
+
+        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/public/{productId}")
+    public ResponseEntity<ProductResponse> getProductsByStore(@PathVariable Long productId) {
+
+        ProductResponse productResponse = productService.getById(productId);
 
         return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }

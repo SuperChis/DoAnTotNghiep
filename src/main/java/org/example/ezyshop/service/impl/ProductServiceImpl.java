@@ -10,6 +10,7 @@ import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
 import org.example.ezyshop.repository.*;
+import org.example.ezyshop.service.AmazonClient;
 import org.example.ezyshop.service.FileStorageService;
 import org.example.ezyshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private VariantRepository variantRepository;
+
+    @Autowired
+    private AmazonClient amazonClient;
+
 
 //    @Autowired
 //    private CartService cartService;
@@ -91,10 +96,15 @@ public class ProductServiceImpl implements ProductService {
         product.setLastUpdate(new Date());
 
         String url;
+//        try {
+//            url = fileService.storeFile(request.getFile());
+//        } catch (RequetFailException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new RequetFailException("Unexpected error occurred while uploading the photo");
+//        }
         try {
-            url = fileService.storeFile(request.getFile());
-        } catch (RequetFailException e) {
-            throw e;
+            url = amazonClient.uploadFile(request.getFile());
         } catch (Exception e) {
             throw new RequetFailException("Unexpected error occurred while uploading the photo");
         }
@@ -140,10 +150,10 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
                 .collect(Collectors.toList());
 
-        productDTOs = productDTOs.stream()
-                .peek(dto -> dto.setVariant(Optional.ofNullable(mapVariantByProductId.get(dto.getProductId()))
-                        .orElse(Collections.emptyList())))
-                .collect(Collectors.toList());
+//        productDTOs = productDTOs.stream()
+//                .peek(dto -> dto.setVariant(Optional.ofNullable(mapVariantByProductId.get(dto.getProductId()))
+//                        .orElse(Collections.emptyList())))
+//                .collect(Collectors.toList());
 
 //        List<Long> productIds = products.stream().map(Product::getId).collect(Collectors.toList());
 //
@@ -194,6 +204,13 @@ public class ProductServiceImpl implements ProductService {
         return new ProductResponse(true, 200)
                 .setDtoList(productDTOs)
                 .setPageDto(PageDto.populatePageDto(pageProducts));
+    }
+
+    @Override
+    public ProductResponse getById(Long id) {
+        Product product = repository.findByIdAndIsDeletedFalse(id);
+        ProductDTO dto = ProductMapper.MAPPER.toDTO(product);
+        return new ProductResponse(true, 200).setDto(dto);
     }
 
     @Override

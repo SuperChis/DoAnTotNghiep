@@ -20,6 +20,8 @@ public interface ProductService {
     ProductResponse searchByStore(Long storeId, Integer pageNumber, Integer pageSize, String sortBy,
                                      String sortOrder);
 
+    ProductResponse getById(Long id);
+
     ProductResponse updateProduct(Long productId, ProductRequest request);
 
 //    ProductResponse updateProductImage(Long productId, MultipartFile image) throws IOException;

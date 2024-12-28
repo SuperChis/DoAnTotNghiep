@@ -25,6 +25,8 @@ public interface ProductMapper {
     @Mapping(target = "productName", source = "name")
     @Mapping(target = "categoryDTO", source = "category")
     @Mapping(target = "thumbnail", source = "imageURL")
+    @Mapping(target = "variantDTOS", source = "variants")
+//    @Mapping(target = "productDTO.variantDTOS.sizeDTOS", source = "product.variants.sizes")
     ProductDTO toDTO(Product product);
 
     /**

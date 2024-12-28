@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.ezyshop.dto.category.CategoryDTO;
+import org.example.ezyshop.dto.variant.VariantDTO;
 import org.example.ezyshop.entity.Variant;
 
 import java.util.List;
@@ -16,10 +17,11 @@ public class ProductDTO {
     private String productName;
     private String thumbnail;
     private String description;
+    private String summary;
     private Integer quantity;
     private double price;
     private double discount;
     private double specialPrice;
     private CategoryDTO categoryDTO;
-    private List<Variant> variant;
+    private List<VariantDTO> variantDTOS;
 }

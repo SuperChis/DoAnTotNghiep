@@ -80,8 +80,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/files/upload", "/uploads/**",
                                         "/api/public/**").permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, "/**", "/api/categories",
-                                        "/api/product/public/search/**", "api/product/public",
-                                        "/api/product/public/categories/**").permitAll()
+                                        "/api/product/public/**").permitAll()
                                 .requestMatchers("/api/auth/**",  "/api/product/public/**").permitAll()
                                 .requestMatchers("/api/auth/user/**", "/api/user/**",
                                         "api/cart/user/**").hasRole("USER")
