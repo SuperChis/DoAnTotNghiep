@@ -25,7 +25,7 @@ public class Product extends BaseEntity {
     private Integer quantity;
 
     @Column(name = "price",nullable = false)
-    private double orginalPrice;
+    private double originalPrice;
 
     @Column()
     private double discount;

@@ -25,12 +25,18 @@ public class AmazonClient {
 
     @Value("${amazonProperties.endpointUrl}")
     private String endpointUrl;
+
     @Value("${amazonProperties.bucketName}")
     private String bucketName;
+
     @Value("${amazonProperties.accessKey}")
     private String accessKey;
+
     @Value("${amazonProperties.secretKey}")
     private String secretKey;
+
+    @Value("${amazonProperties.region}")
+    private String region;
 
     @PostConstruct
     private void initializeAmazon() {
@@ -39,7 +45,7 @@ public class AmazonClient {
         this.s3client = AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion("us-east-1")
+                .withRegion(region)
                 .build();
     }
 

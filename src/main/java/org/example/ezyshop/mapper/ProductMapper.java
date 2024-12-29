@@ -16,6 +16,7 @@ public interface ProductMapper {
     @Mapping(target = "cartItems", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "imageURL", ignore = true)
+    @Mapping(target="originalPrice",source = "price")
     Product toModel(ProductRequest request);
 
     /**
@@ -37,6 +38,7 @@ public interface ProductMapper {
     @Mapping(target = "cartItems", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "imageURL", ignore = true)
+    @Mapping(target="originalPrice",source = "price")
     void updateProductFromRequest(ProductRequest request, @MappingTarget Product product);
 
 }

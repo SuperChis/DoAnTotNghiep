@@ -7,10 +7,8 @@ import org.example.ezyshop.dto.store.CreateStoreRequest;
 import org.example.ezyshop.dto.store.StoreResponse;
 import org.example.ezyshop.dto.user.UserRequest;
 import org.example.ezyshop.dto.user.UserResponse;
-import org.example.ezyshop.service.AddressService;
-import org.example.ezyshop.service.FileStorageService;
-import org.example.ezyshop.service.StoreService;
-import org.example.ezyshop.service.UserService;
+import org.example.ezyshop.exception.RequetFailException;
+import org.example.ezyshop.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +29,8 @@ public class UserController {
 
     @Autowired
     private StoreService storeService;
+    @Autowired
+    private AmazonClient amazonClient;
 
     @PutMapping("/profile")
     public UserResponse updateProfile(@RequestBody UserRequest request) {
@@ -50,13 +50,11 @@ public class UserController {
     @PutMapping("/update-avatar")
     public UserResponse updateAvatar(@RequestParam("file") MultipartFile file) {
         try {
-            // Lưu file và lấy URL
-            String fileUrl = storageService.storeFile(file);
-            return service.updateAvatar(fileUrl);
+            String url = amazonClient.uploadFile(file);
+            return service.updateAvatar(url);
         } catch (Exception e) {
-            return new UserResponse(false, 400, "Could not upload file: " + e.getMessage());
+            throw new RequetFailException("upload error");
         }
-
     }
 
     @PostMapping("/address")

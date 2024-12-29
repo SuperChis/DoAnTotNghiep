@@ -12,6 +12,7 @@ import org.example.ezyshop.mapper.VariantMapper;
 import org.example.ezyshop.repository.ProductRepository;
 import org.example.ezyshop.repository.SizeRepository;
 import org.example.ezyshop.repository.VariantRepository;
+import org.example.ezyshop.service.AmazonClient;
 import org.example.ezyshop.service.FileStorageService;
 import org.example.ezyshop.service.VariantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class VariantServiceImpl implements VariantService {
     @Autowired
     FileStorageService fileStorageService;
 
+    @Autowired
+    AmazonClient amazonClient;
+
     public VariantResponse getAllVariants(Long productId) {
         List<Variant> variants = repository.findByProductId(productId);
         List<VariantDTO> dtoList = variants.stream().map(VariantMapper.MAPPER::toDTO).toList();
@@ -57,9 +61,7 @@ public class VariantServiceImpl implements VariantService {
 
         String url;
         try {
-            url = fileStorageService.storeFile(request.getFile());
-        } catch (RequetFailException e) {
-            throw e;
+            url = amazonClient.uploadFile(request.getFile());
         } catch (Exception e) {
             throw new RequetFailException("upload error");
         }
@@ -94,6 +96,15 @@ public class VariantServiceImpl implements VariantService {
         }
         VariantMapper.MAPPER.updateVariantFromRequest(request, variant);
         variant.setLastUpdate(new Date());
+        if (request.getFile() != null) {
+            String url;
+            try {
+                url = amazonClient.uploadFile(request.getFile());
+            } catch (Exception e) {
+                throw new RequetFailException("upload error");
+            }
+            variant.setImageUrl(url);
+        }
         repository.save(variant);
         return new VariantResponse(true, 200).setDto(VariantMapper.MAPPER.toDTO(variant));
     }

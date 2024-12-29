@@ -88,7 +88,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = ProductMapper.MAPPER.toModel(request);
         product.setCategory(savedCategory);
 
-        double specialPrice = product.getOrginalPrice() - ((product.getDiscount() * 0.01) * product.getOrginalPrice());
+        double specialPrice = product.getOriginalPrice() - ((product.getDiscount() * 0.01) * product.getOriginalPrice());
         product.setSpecialPrice(specialPrice);
         product.setDeleted(false);
         product.setStore(store);
@@ -96,13 +96,6 @@ public class ProductServiceImpl implements ProductService {
         product.setLastUpdate(new Date());
 
         String url;
-//        try {
-//            url = fileService.storeFile(request.getFile());
-//        } catch (RequetFailException e) {
-//            throw e;
-//        } catch (Exception e) {
-//            throw new RequetFailException("Unexpected error occurred while uploading the photo");
-//        }
         try {
             url = amazonClient.uploadFile(request.getFile());
         } catch (Exception e) {
@@ -230,6 +223,16 @@ public class ProductServiceImpl implements ProductService {
                 throw new NotFoundException(false, 404, "category not found, can't update");
             }
             productFromDB.setCategory(category);
+        }
+
+        if (request.getFile() != null) {
+            String url;
+            try {
+                url = amazonClient.uploadFile(request.getFile());
+            } catch (Exception e) {
+                throw new RequetFailException("Unexpected error occurred while uploading the photo");
+            }
+            productFromDB.setImageURL(url);
         }
         double specialPrice = request.getPrice() - ((request.getDiscount() * 0.01) * request.getPrice());
         productFromDB.setSpecialPrice(specialPrice);
