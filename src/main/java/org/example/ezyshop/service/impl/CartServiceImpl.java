@@ -7,16 +7,14 @@ import org.example.ezyshop.dto.cart.CartDTO;
 import org.example.ezyshop.dto.cart.CartItemDTO;
 import org.example.ezyshop.dto.cart.CartResponse;
 import org.example.ezyshop.dto.pagination.PageDto;
-import org.example.ezyshop.entity.Cart;
-import org.example.ezyshop.entity.CartItem;
-import org.example.ezyshop.entity.Product;
-import org.example.ezyshop.entity.User;
+import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
 import org.example.ezyshop.repository.CartItemRepository;
 import org.example.ezyshop.repository.CartRepository;
 import org.example.ezyshop.repository.ProductRepository;
+import org.example.ezyshop.repository.SizeRepository;
 import org.example.ezyshop.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,6 +40,8 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private SizeRepository sizeRepository;
 
     private CartDTO toDTO(Cart cart) {
         CartDTO dto = new CartDTO();
@@ -90,20 +90,38 @@ public class CartServiceImpl implements CartService {
         }
 
         CartItem cartItem = cartItemRepository.findByProductIdAndCartId(cart.getId(), request.getProductId());
+        SizeEntity size = null;
+        if (request.getSizeId() != null) {
+            size = sizeRepository.findById(request.getSizeId())
+                    .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
+            if (size.getStock() == null || size.getStock() <= 0) {
+                throw new RequetFailException(false, 400, "Product quantity is not enough");
+            }
+        }
+
         if (cartItem == null) {
             cartItem = new CartItem();
             cartItem.setCart(cart);
             cartItem.setProduct(product);
-            cartItem.setProductPrice(product.getSpecialPrice());
             cartItem.setQuantity(request.getQuantity());
             cartItem.setDiscount(product.getDiscount());
             cartItem.setDeleted(false);
+
         } else {
             cartItem.setQuantity(request.getQuantity() + cartItem.getQuantity());
             cartItem.setDiscount(product.getDiscount());
-            cartItem.setProductPrice(product.getSpecialPrice());
         }
 
+        if (size != null) {
+            cartItem.setProductPrice(size.getPrice());
+            size.setStock(size.getStock() - request.getQuantity());
+            cartItem.setSizeId(size.getId());
+            sizeRepository.save(size);
+        } else {
+            cartItem.setProductPrice(product.getOriginalPrice());
+        }
+
+        product.setQuantity(product.getQuantity() + request.getQuantity());
         cartItemRepository.save(cartItem);
 
         product.setQuantity(product.getQuantity() - request.getQuantity());
