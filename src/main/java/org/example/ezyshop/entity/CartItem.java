@@ -31,5 +31,8 @@ public class CartItem extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    private Long variantId;
+    private Long sizeId;
+
     private boolean isDeleted;
 }
