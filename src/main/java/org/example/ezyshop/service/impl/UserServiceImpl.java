@@ -357,7 +357,7 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
-        user.setAvatarUrl(domainServer + fileUrl);
+        user.setAvatarUrl(fileUrl);
         repository.save(user);
         UserDTO dto = UserMapper.Mapper.toDTO(user);
         return new UserResponse(true, 200).setUserDTO(dto);
