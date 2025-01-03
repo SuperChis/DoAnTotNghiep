@@ -78,8 +78,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(
                         (requests) -> requests
                                 .requestMatchers("/api/files/upload", "/uploads/**",
-                                        "/api/public/**", "/api/payment/**").permitAll()
-                                .requestMatchers(HttpMethod.OPTIONS, "/**", "/api/categories",
+                                        "/api/public/**", "/api/payment/**", "/api/categories").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**",
                                         "/api/product/public/**").permitAll()
                                 .requestMatchers("/api/auth/**",  "/api/product/public/**").permitAll()
                                 .requestMatchers("/api/auth/user/**", "/api/user/**",

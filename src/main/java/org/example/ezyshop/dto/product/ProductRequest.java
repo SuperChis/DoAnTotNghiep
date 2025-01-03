@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductRequest {
     private String name;
     private String description;
-    private Integer quantity;
+//    private Integer quantity;
     private double price;
     private double discount;
     private double specialPrice;
