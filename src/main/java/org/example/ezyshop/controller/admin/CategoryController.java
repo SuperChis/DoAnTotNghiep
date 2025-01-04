@@ -33,7 +33,7 @@ public class CategoryController {
 
         CategoryResponse categoryResponse = service.getCategories(pageNumber, pageSize, sortBy, sortOrder);
 
-        return new ResponseEntity<CategoryResponse>(categoryResponse, HttpStatus.FOUND);
+        return new ResponseEntity<CategoryResponse>(categoryResponse, HttpStatus.OK);
     }
 
     @GetMapping("/all")

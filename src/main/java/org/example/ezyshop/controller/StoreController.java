@@ -59,7 +59,7 @@ public class StoreController {
     }
 
     @PutMapping("/store/product/{productId}")
-    public ResponseEntity<ProductResponse> updateProduct(@RequestBody ProductRequest request,
+    public ResponseEntity<ProductResponse> updateProduct(@ModelAttribute ProductRequest request,
                                                          @PathVariable Long productId) {
         ProductResponse updatedProduct = productService.updateProduct(productId, request);
 
@@ -91,7 +91,7 @@ public class StoreController {
 
     @PutMapping("/store/variant/{id}")
     public ResponseEntity<VariantResponse> updateVariant(@PathVariable Long id,
-                                                         @RequestBody VariantRequest request) {
+                                                         @ModelAttribute VariantRequest request) {
 
         return ResponseEntity.ok(variantService.updateVariant(id, request));
     }

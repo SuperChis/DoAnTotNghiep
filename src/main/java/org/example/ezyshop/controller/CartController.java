@@ -31,7 +31,7 @@ public class CartController {
     @GetMapping("/user/")
     public ResponseEntity<CartResponse> getCarts() {
 
-        return new ResponseEntity<CartResponse>(service.getAllCarts(), HttpStatus.FOUND);
+        return new ResponseEntity<CartResponse>(service.getAllCarts(), HttpStatus.OK);
     }
 //
 //    @GetMapping("/public/users/{emailId}/carts/{cartId}")
