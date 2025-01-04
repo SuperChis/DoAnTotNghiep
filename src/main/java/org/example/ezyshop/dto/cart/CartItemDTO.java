@@ -11,6 +11,6 @@ public class CartItemDTO {
     private Integer quantity;
     private double discount;
     private double productPrice;
-    private String Size;
+    private String size;
     private String attribute;
 }

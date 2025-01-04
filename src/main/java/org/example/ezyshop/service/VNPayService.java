@@ -1,5 +1,6 @@
 package org.example.ezyshop.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Hex;
 import org.example.ezyshop.config.vnpay.VNPayConfig;
@@ -79,7 +80,8 @@ public class VNPayService {
         }
 
         String queryUrl = query.toString();
-        String vnp_SecureHash = hmacSHA512(vnPayConfig.getSecretKey(), hashData.toString());
+//        String vnp_SecureHash = hmacSHA512(vnPayConfig.getSecretKey(), hashData.toString());
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = vnPayConfig.getUrl() + "?" + queryUrl;
 
@@ -99,7 +101,8 @@ public class VNPayService {
 
         String signValue = calculateSignature(params);
 
-        return signValue.equals(vnp_SecureHash);
+//        return signValue.equals(vnp_SecureHash);
+        return signValue.equalsIgnoreCase(vnp_SecureHash);
     }
 
     private String generateTransactionNo() {
@@ -137,5 +140,37 @@ public class VNPayService {
         }
 
         return hmacSHA512(vnPayConfig.getSecretKey(), hashData.toString());
+    }
+
+    public int orderReturn(Map<String, String> queryParams) {
+        Map<String, String> fields = new HashMap<>();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            String fieldName = null;
+            String fieldValue = null;
+            try {
+                fieldName = URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII.toString());
+                fieldValue = URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII.toString());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                fields.put(fieldName, fieldValue);
+            }
+        }
+
+        String vnp_SecureHash = queryParams.get("vnp_SecureHash");
+        fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHash");
+
+        String signValue = vnPayConfig.hashAllFields(fields);
+        if (signValue.equals(vnp_SecureHash)) {
+            if ("00".equals(queryParams.get("vnp_TransactionStatus"))) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return -1;
+        }
     }
 }

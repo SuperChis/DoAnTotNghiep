@@ -3,6 +3,7 @@ package org.example.ezyshop.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.ezyshop.dto.payment.PaymentRequest;
 import org.example.ezyshop.dto.payment.PaymentResponse;
+import org.example.ezyshop.dto.payment.PaymentResultResponse;
 import org.example.ezyshop.service.VNPayService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,22 +31,32 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-return")
-    public ResponseEntity<String> vnpayReturn(@RequestParam Map<String, String> queryParams) {
+    public ResponseEntity<PaymentResultResponse> vnpayReturn(@RequestParam Map<String, String> queryParams) {
+        int paymentStatus =vnPayService.orderReturn(queryParams);
         String vnp_ResponseCode = queryParams.get("vnp_ResponseCode");
         String vnp_TxnRef = queryParams.get("vnp_TxnRef");
 
-        if (vnPayService.verifyPayment(queryParams)) {
+        String orderInfo = queryParams.get("vnp_OrderInfo");
+        String paymentTime = queryParams.get("vnp_PayDate");
+        String transactionId = queryParams.get("vnp_TransactionNo");
+        String totalPrice = queryParams.get("vnp_Amount");
+
+        if (paymentStatus == 1) {
             if ("00".equals(vnp_ResponseCode)) {
                 // Payment successful
-                return ResponseEntity.ok("Payment successful for transaction: " + vnp_TxnRef);
+                PaymentResultResponse response =  new PaymentResultResponse();
+                response.setAmount(Integer.parseInt(totalPrice));
+                response.setTransactionId(transactionId);
+                response.setPaymentTime(paymentTime);
+                response.setOrderInfo(orderInfo);
+                response.setMessage("success");
+                return ResponseEntity.ok(response);
             } else {
                 // Payment failed
-                return ResponseEntity.ok("Payment failed for transaction: " + vnp_TxnRef +
-                        " with response code: " + vnp_ResponseCode);
+                return null;
             }
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid payment signature");
+            return null;
         }
     }
 }
