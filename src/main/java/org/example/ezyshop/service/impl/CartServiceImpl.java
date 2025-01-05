@@ -36,9 +36,6 @@ public class CartServiceImpl implements CartService {
     private CartItemRepository cartItemRepository;
 
     @Autowired
-    private CartRepository cartRepository;
-
-    @Autowired
     private SizeRepository sizeRepository;
 
     private CartDTO toDTO(Cart cart) {
@@ -82,7 +79,7 @@ public class CartServiceImpl implements CartService {
         SizeEntity size = sizeRepository.findById(request.getSizeId())
                 .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
 
-        if (size.getStock() == null || size.getStock() <= 0) {
+        if (size.getStock() == null || size.getStock() <= 0 || size.getStock() < request.getQuantity()) {
             throw new RequetFailException(false, 400, "Product quantity is not enough");
         }
 
@@ -117,14 +114,15 @@ public class CartServiceImpl implements CartService {
             cartItem.setLastUpdate(new Date());
         }
 
-        product.setQuantity(product.getQuantity() + request.getQuantity());
         cartItemRepository.save(cartItem);
 
-        product.setQuantity(product.getQuantity() - request.getQuantity());
+        size.setStock(size.getStock() - request.getQuantity());
+        sizeRepository.save(size);
+        product.setQuantity(product.getQuantity() + request.getQuantity());
         productRepository.save(product);
 
         cart.setTotalPrice(cart.getTotalPrice() + (cartItem.getProductPrice() * request.getQuantity()));
-        cartRepository.save(cart);
+        repository.save(cart);
 
         CartDTO dto = toDTO(cart);
         return new CartResponse(true, 200, "add product to cart successfully")
@@ -136,7 +134,7 @@ public class CartServiceImpl implements CartService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
-        Cart cart = cartRepository.findByUserId(user.getId());
+        Cart cart = repository.findByUserId(user.getId());
         if (cart == null) {
             throw new NotFoundException(false, 4004, "cart is not found");
         }
@@ -187,7 +185,7 @@ public class CartServiceImpl implements CartService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
-        Cart cart = cartRepository.findByUserId(user.getId());
+        Cart cart = repository.findByUserId(user.getId());
         if (cart == null) {
             throw new NotFoundException(false, 4004, "cart is not found");
         }
@@ -197,86 +195,53 @@ public class CartServiceImpl implements CartService {
         if (request.getSizeId() != null) cartItem.setSizeId(request.getSizeId());
 
         if (request.getQuantity() != null) {
-            SizeEntity size = sizeRepository.findById(request.getSizeId())
+            SizeEntity size = sizeRepository.findById(cartItem.getSizeId())
                     .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
+            int oldQuantity = cartItem.getQuantity();
+            if (size.getStock() == null || size.getStock() <= 0 || size.getStock() + oldQuantity < request.getQuantity()) {
+                throw new RequetFailException(false, 400, "Product quantity is not enough");
+            }
+            size.setStock(size.getStock() + oldQuantity - request.getQuantity());
             double specialPrice = size.getPrice() - ((cartItem.getDiscount() * 0.01) * size.getPrice());
             cartItem.setQuantity(request.getQuantity());
             cartItem.setProductPrice(specialPrice);
             cartItem.setLastUpdate(new Date());
-            cart.setTotalPrice(cart.getTotalPrice() + (cartItem.getProductPrice() * cartItem.getQuantity()));
+            cart.setTotalPrice(cart.getTotalPrice() + cartItem.getProductPrice() * cartItem.getQuantity() - cartItem.getProductPrice() * oldQuantity);
+            sizeRepository.save(size);
         }
 
         cartItemRepository.save(cartItem);
-        cartRepository.save(cart);
+        repository.save(cart);
         return new CartResponse(true, 200, "update cart successfully");
     }
-//
-//    @Override
-//    public CartDTO updateProductQuantityInCart(Long cartId, Long productId, Integer quantity) {
-//        Cart cart = repository.findById(cartId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
-//
-//        Product product = productRepository.findById(productId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
-//
-//        if (product.getQuantity() == 0) {
-//            throw new APIException(product.getProductName() + " is not available");
-//        }
-//
-//        if (product.getQuantity() < quantity) {
-//            throw new APIException("Please, make an order of the " + product.getProductName()
-//                    + " less than or equal to the quantity " + product.getQuantity() + ".");
-//        }
-//
-//        CartItem cartItem = cartItemRepository.findByProductIdAndCartId(cartId, productId);
-//
-//        if (cartItem == null) {
-//            throw new APIException("Product " + product.getProductName() + " not available in the cart!!!");
-//        }
-//
-//        double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
-//
-//        product.setQuantity(product.getQuantity() + cartItem.getQuantity() - quantity);
-//
-//        cartItem.setProductPrice(product.getSpecialPrice());
-//        cartItem.setQuantity(quantity);
-//        cartItem.setDiscount(product.getDiscount());
-//
-//        cart.setTotalPrice(cartPrice + (cartItem.getProductPrice() * quantity));
-//
-//        cartItem = cartItemRepository.save(cartItem);
-//
-//        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-//
-//        List<ProductDTO> productDTOs = cart.getCartItems().stream()
-//                .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
-//
-//        cartDTO.setProducts(productDTOs);
-//
-//        return cartDTO;
-//
-//    }
-//
-//    @Override
-//    public String deleteProductFromCart(Long cartId, Long productId) {
-//        Cart cart = repository.findById(cartId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
-//
-//        CartItem cartItem = cartItemRepository.findByProductIdAndCartId(cartId, productId);
-//
-//        if (cartItem == null) {
-//            throw new ResourceNotFoundException("Product", "productId", productId);
-//        }
-//
-//        cart.setTotalPrice(cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity()));
-//
-//        Product product = cartItem.getProduct();
-//        product.setQuantity(product.getQuantity() + cartItem.getQuantity());
-//
-//        cartItemRepository.deleteCartItemByProductIdAndCartId(cartId, productId);
-//
-//        return "Product " + cartItem.getProduct().getProductName() + " removed from the cart !!!";
-//    }
 
+    @Override
+    public CartResponse deleteCartItem(Long cartItemId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        Cart cart = repository.findByUserId(user.getId());
+        if (cart == null) {
+            throw new NotFoundException(false, 4004, "cart is not found");
+        }
+
+        CartItem cartItem = cartItemRepository.findByCartItemId(cartItemId);
+
+        if (cartItem == null) {
+            throw new NotFoundException(false, 404, "Cart item not exists");
+        }
+
+        cart.setTotalPrice(cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity()));
+        cartItem.setDeleted(true);
+        cartItemRepository.save(cartItem);
+        repository.save(cart);
+
+        SizeEntity size = sizeRepository.findById(cartItem.getSizeId())
+                .orElseThrow(() -> new NotFoundException(false, 404, " not exists"));
+        size.setStock(size.getStock() + cartItem.getQuantity());
+        sizeRepository.save(size);
+
+        return new CartResponse(true, 200, "delete cart item succesfully");
+    }
 }
 

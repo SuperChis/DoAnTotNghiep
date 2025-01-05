@@ -3,6 +3,7 @@ package org.example.ezyshop.controller;
 import org.example.ezyshop.constant.Constants;
 import org.example.ezyshop.dto.cart.AddToCartRequest;
 import org.example.ezyshop.dto.cart.CartDTO;
+import org.example.ezyshop.dto.cart.CartRequest;
 import org.example.ezyshop.dto.cart.CartResponse;
 import org.example.ezyshop.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,30 +29,24 @@ public class CartController {
         return new ResponseEntity<CartResponse>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/user/")
+    @GetMapping("/user")
     public ResponseEntity<CartResponse> getCarts() {
 
         return new ResponseEntity<CartResponse>(service.getAllCarts(), HttpStatus.OK);
     }
-//
-//    @GetMapping("/public/users/{emailId}/carts/{cartId}")
-//    public ResponseEntity<CartDTO> getCartById(@PathVariable String emailId, @PathVariable Long cartId) {
-//        CartDTO cartDTO = service.getCart(emailId, cartId);
-//
-//        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.FOUND);
-//    }
-//
-//    @PutMapping("/public/carts/{cartId}/products/{productId}/quantity/{quantity}")
-//    public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long cartId, @PathVariable Long productId, @PathVariable Integer quantity) {
-//        CartDTO cartDTO = service.updateProductQuantityInCart(cartId, productId, quantity);
-//
-//        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping("/public/carts/{cartId}/product/{productId}")
-//    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long productId) {
-//        String status = service.deleteProductFromCart(cartId, productId);
-//
-//        return new ResponseEntity<String>(status, HttpStatus.OK);
-//    }
+
+    @PutMapping("/user")
+    public ResponseEntity<CartResponse> updateCart(@RequestBody CartRequest request) {
+        CartResponse response = service.updateCart(request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/user")
+    public ResponseEntity<CartResponse> deleteCartItem(@RequestParam("cartItemId") Long cartItemId) {
+        CartResponse status = service.deleteCartItem(cartItemId);
+
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
 }
