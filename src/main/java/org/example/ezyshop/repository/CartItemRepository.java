@@ -21,10 +21,11 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     @Query("SELECT ci " +
             "FROM CartItem ci " +
-            "WHERE ci.cart.id = ?1 " +
-            "   AND ci.product.id = ?2 " +
+            "WHERE ci.cart.id = (?1) " +
+            "   AND ci.product.id = (?2) " +
+            "   AND ci.sizeId = (?3) " +
             "   AND ci.isDeleted = false ")
-    CartItem findByProductIdAndCartId(Long cartId, Long productId);
+    CartItem findByProductIdAndCartId(Long cartId, Long productId, Long sizeId);
 
     @Query("SELECT ci " +
             "FROM CartItem ci " +
@@ -52,4 +53,12 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             "   AND c.isDeleted = false " +
             "   AND ci.isDeleted = false ")
     List<CartItem> findByCartId(Long cartId);
+
+    @Query("SELECT ci " +
+            "FROM CartItem ci " +
+            "LEFT JOIN Cart c ON ci.cart.id = c.id " +
+            "WHERE ci.id = ?1 " +
+            "   AND c.isDeleted = false " +
+            "   AND ci.isDeleted = false ")
+    CartItem findByCartItemId(Long cartItemId);
 }

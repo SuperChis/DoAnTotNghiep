@@ -14,4 +14,6 @@ public interface SizeRepository extends JpaRepository<SizeEntity, Long> {
             "WHERE s.variant.id = (?1) " +
             "ORDER BY s.created")
     List<SizeEntity> findAllByVariantId(Long variantId);
+
+    List<SizeEntity> findByIdIn(List<Long> ids);
 }

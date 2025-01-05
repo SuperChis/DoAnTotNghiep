@@ -2,10 +2,7 @@ package org.example.ezyshop.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.example.ezyshop.config.service.UserDetailsImpl;
-import org.example.ezyshop.dto.cart.AddToCartRequest;
-import org.example.ezyshop.dto.cart.CartDTO;
-import org.example.ezyshop.dto.cart.CartItemDTO;
-import org.example.ezyshop.dto.cart.CartResponse;
+import org.example.ezyshop.dto.cart.*;
 import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
@@ -20,7 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +37,7 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
+
     @Autowired
     private SizeRepository sizeRepository;
 
@@ -55,12 +56,13 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDTO mapToCartItemDTO(CartItem item) {
         CartItemDTO cartItemDTO = new CartItemDTO();
-        cartItemDTO.setProductDTO(ProductMapper.MAPPER.toProductDTO(item.getProduct()));
+        cartItemDTO.setProductDTO(ProductMapper.MAPPER.toProductDTOInCart(item.getProduct()));
         cartItemDTO.setId(item.getId());
         cartItemDTO.setCartId(item.getCart().getId());
         cartItemDTO.setProductPrice(item.getProductPrice());
         cartItemDTO.setDiscount(item.getDiscount());
         cartItemDTO.setQuantity(item.getQuantity());
+        cartItemDTO.setSizeId(item.getSizeId());
         return cartItemDTO;
     }
 
@@ -77,24 +79,22 @@ public class CartServiceImpl implements CartService {
             throw new NotFoundException(false, 4004 , request.getProductId() + " not exists");
         }
 
-        if (product.getQuantity() == 0) {
-            throw new RequetFailException(false, 400, product.getName() + " is not available");
+        SizeEntity size = sizeRepository.findById(request.getSizeId())
+                .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
+
+        if (size.getStock() == null || size.getStock() <= 0) {
+            throw new RequetFailException(false, 400, "Product quantity is not enough");
         }
 
-        if (product.getQuantity() < request.getQuantity()) {
-            throw new RequetFailException(false, 400, "Please, make an order of the " + product.getName()
-                    + " less than or equal to the quantity " + product.getQuantity() + ".");
-        }
+//        if (request.getSizeId() != null) {
+//            size = sizeRepository.findById(request.getSizeId())
+//                    .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
+//            if (size.getStock() == null || size.getStock() <= 0) {
+//                throw new RequetFailException(false, 400, "Product quantity is not enough");
+//            }
+//        }
 
-        CartItem cartItem = cartItemRepository.findByProductIdAndCartId(cart.getId(), request.getProductId());
-        SizeEntity size = null;
-        if (request.getSizeId() != null) {
-            size = sizeRepository.findById(request.getSizeId())
-                    .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
-            if (size.getStock() == null || size.getStock() <= 0) {
-                throw new RequetFailException(false, 400, "Product quantity is not enough");
-            }
-        }
+        CartItem cartItem = cartItemRepository.findByProductIdAndCartId(cart.getId(), request.getProductId(), request.getSizeId());
 
         if (cartItem == null) {
             cartItem = new CartItem();
@@ -102,20 +102,19 @@ public class CartServiceImpl implements CartService {
             cartItem.setProduct(product);
             cartItem.setQuantity(request.getQuantity());
             cartItem.setDiscount(product.getDiscount());
+            cartItem.setSizeId(size.getId());
+            double specialPrice = size.getPrice() - ((product.getDiscount() * 0.01) * size.getPrice());
+            cartItem.setProductPrice(specialPrice);
             cartItem.setDeleted(false);
+            cartItem.setCreated(new Date());
+            cartItem.setLastUpdate(new Date());
 
         } else {
+            double specialPrice = size.getPrice() - ((product.getDiscount() * 0.01) * size.getPrice());
             cartItem.setQuantity(request.getQuantity() + cartItem.getQuantity());
             cartItem.setDiscount(product.getDiscount());
-        }
-
-        if (size != null) {
-            cartItem.setProductPrice(size.getPrice());
-            size.setStock(size.getStock() - request.getQuantity());
-            cartItem.setSizeId(size.getId());
-            sizeRepository.save(size);
-        } else {
-            cartItem.setProductPrice(product.getOriginalPrice());
+            cartItem.setProductPrice(specialPrice);
+            cartItem.setLastUpdate(new Date());
         }
 
         product.setQuantity(product.getQuantity() + request.getQuantity());
@@ -142,58 +141,75 @@ public class CartServiceImpl implements CartService {
             throw new NotFoundException(false, 4004, "cart is not found");
         }
 
-        List<CartItem> cartItems = cartItemRepository.findByUserId(user.getId());
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+        Map<Long, CartItem> mapCartItemBySizeId = cartItems.stream()
+                .collect(Collectors.toMap(
+                        CartItem::getSizeId, // Sử dụng sizeId làm key
+                        Function.identity(), // Giá trị là chính cartItem
+                        (existing, replacement) -> existing // Xử lý trường hợp trùng key: giữ lại item đã tồn tại
+                ));
+        List<Long> sizeIds = cartItems.stream().map(CartItem::getSizeId).toList();
+        List<SizeEntity> sizes = sizeRepository.findByIdIn(sizeIds);
+        Map<Long, SizeEntity> mapSizeById = sizes.stream()
+                .collect(Collectors.toMap(
+                        SizeEntity::getId, // Sử dụng sizeId làm key
+                        Function.identity() // Giá trị là chính SizeEntity
+                ));
+
         if (cartItems.isEmpty()) {
             throw new NotFoundException(true, 200, "Cart is empty");
         }
+
+//        List<CartItemDTO> cartItemDTOS = cartItems.stream()
+//                .map(this::mapToCartItemDTO)
+//                .toList();
         List<CartItemDTO> cartItemDTOS = cartItems.stream()
-                .map(this::mapToCartItemDTO)
+                .map(cartItem -> {
+                    CartItemDTO dto = mapToCartItemDTO(cartItem); // Hàm ánh xạ cơ bản
+                    SizeEntity sizeEntity = mapSizeById.get(cartItem.getSizeId());
+                    if (sizeEntity != null) {
+                        dto.setSize(sizeEntity.getSize()); // Ánh xạ sizeName
+                        dto.setSizeStock((long) sizeEntity.getStock());
+                        dto.setUrlImage(sizeEntity.getVariant().getImageUrl());// Ánh xạ stock
+                    }
+                    return dto;
+                })
                 .toList();
-        CartDTO dto = new CartDTO().setCartItemDTOS(cartItemDTOS);
+        CartDTO dto = new CartDTO().setCartItemDTOS(cartItemDTOS)
+                .setTotalPrice(cart.getTotalPrice())
+                .setId(cart.getId());
         return new CartResponse(true, 200)
                 .setDto(dto);
     }
-//
-//    @Override
-//    public CartDTO getCart(String emailId, Long cartId) {
-//        Cart cart = repository.findCartByEmailAndCartId(emailId, cartId);
-//
-//        if (cart == null) {
-//            throw new ResourceNotFoundException("Cart", "cartId", cartId);
-//        }
-//
-//        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-//
-//        List<ProductDTO> products = cart.getCartItems().stream()
-//                .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
-//
-//        cartDTO.setProducts(products);
-//
-//        return cartDTO;
-//    }
-//
-//    @Override
-//    public void updateProductInCarts(Long cartId, Long productId) {
-//        Cart cart = repository.findById(cartId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
-//
-//        Product product = productRepository.findById(productId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
-//
-//        CartItem cartItem = cartItemRepository.findByProductIdAndCartId(cartId, productId);
-//
-//        if (cartItem == null) {
-//            throw new APIException("Product " + product.getProductName() + " not available in the cart!!!");
-//        }
-//
-//        double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
-//
-//        cartItem.setProductPrice(product.getSpecialPrice());
-//
-//        cart.setTotalPrice(cartPrice + (cartItem.getProductPrice() * cartItem.getQuantity()));
-//
-//        cartItem = cartItemRepository.save(cartItem);
-//    }
+
+    @Override
+    public CartResponse updateCart(CartRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        Cart cart = cartRepository.findByUserId(user.getId());
+        if (cart == null) {
+            throw new NotFoundException(false, 4004, "cart is not found");
+        }
+
+        CartItem cartItem = cartItemRepository.findByCartItemId(request.getCartItemId());
+
+        if (request.getSizeId() != null) cartItem.setSizeId(request.getSizeId());
+
+        if (request.getQuantity() != null) {
+            SizeEntity size = sizeRepository.findById(request.getSizeId())
+                    .orElseThrow(() -> new NotFoundException(false, 404, request.getSizeId() + " not exists"));
+            double specialPrice = size.getPrice() - ((cartItem.getDiscount() * 0.01) * size.getPrice());
+            cartItem.setQuantity(request.getQuantity());
+            cartItem.setProductPrice(specialPrice);
+            cartItem.setLastUpdate(new Date());
+            cart.setTotalPrice(cart.getTotalPrice() + (cartItem.getProductPrice() * cartItem.getQuantity()));
+        }
+
+        cartItemRepository.save(cartItem);
+        cartRepository.save(cart);
+        return new CartResponse(true, 200, "update cart successfully");
+    }
 //
 //    @Override
 //    public CartDTO updateProductQuantityInCart(Long cartId, Long productId, Integer quantity) {

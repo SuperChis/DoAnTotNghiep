@@ -32,6 +32,7 @@ public class CartItem extends BaseEntity {
     private Product product;
 
     private Long variantId;
+    
     private Long sizeId;
 
     private boolean isDeleted;

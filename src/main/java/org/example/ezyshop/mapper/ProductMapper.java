@@ -34,6 +34,14 @@ public interface ProductMapper {
 //    @Mapping(target = "productDTO.variantDTOS.sizeDTOS", source = "product.variants.sizes")
     ProductDTO toProductDTO(Product product);
 
+    @Mapping(target = "productId", source = "id")
+    @Mapping(target = "productName", source = "name")
+    @Mapping(target = "categoryDTO", source = "category")
+    @Mapping(target = "thumbnail", source = "imageURL")
+    @Mapping(target="price",source = "originalPrice")
+    @Mapping(target="storeId",source = "product.store.id")
+    @Mapping(target="storeName",source = "product.store.name")
+    ProductDTO toProductDTOInCart(Product product);
 
     @Mapping(target = "productId", source = "id")
     @Mapping(target = "productName", source = "name")
