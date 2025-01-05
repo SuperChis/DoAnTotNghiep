@@ -1,12 +1,15 @@
 package org.example.ezyshop.repository;
 
 import org.example.ezyshop.entity.Product;
+import org.example.ezyshop.entity.StoreEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -47,10 +50,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "           AND c.isDeleted = FALSE " +
             "           AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "           AND (:minPrice IS NULL OR p.originalPrice >= :minPrice ) " +
-            "           AND (:maxPrice IS NULL OR p.originalPrice <= :maxPrice )"
+            "           AND (:maxPrice IS NULL OR p.originalPrice <= :maxPrice )" +
+            "           AND (:categoryId IS NULL OR c.id = :categoryId ) " +
+            "           AND (:storeId IS NULL OR p.store.id = :storeId )"
     )
     Page<Product> searchByKeyword(@Param("search") String search,
                                   @Param("minPrice") Long minPrice,
                                   @Param("maxPrice") Long maxPrice,
+                                  @Param("categoryId") Long categoryId,
+                                  @Param("storeId") Long storeId,
                                   Pageable pageable);
+
+    List<Product> store(StoreEntity store);
 }

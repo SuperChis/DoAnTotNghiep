@@ -2,7 +2,6 @@ package org.example.ezyshop.service;
 
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -26,8 +25,9 @@ public interface ProductService {
 
 //    ProductResponse updateProductImage(Long productId, MultipartFile image) throws IOException;
 
-    ProductResponse searchProductByKeyword(String keyword, Long minPrice, Long maxPrice, Integer pageNumber, Integer pageSize, String sortBy,
-                                           String sortOrder);
+    ProductResponse searchProduct(String keyword, Long minPrice, Long maxPrice, Long categoryId, Long storeId,
+                                  Integer pageNumber, Integer pageSize, String sortBy,
+                                  String sortOrder);
 
     ProductResponse deleteProduct(Long productId);
 }

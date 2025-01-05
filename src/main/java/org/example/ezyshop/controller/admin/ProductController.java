@@ -1,16 +1,13 @@
 package org.example.ezyshop.controller.admin;
 
-import jakarta.validation.Valid;
 import org.example.ezyshop.constant.Constants;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
-import org.example.ezyshop.service.AmazonClient;
 import org.example.ezyshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController()
 @RequestMapping("/api/product")
@@ -79,12 +76,14 @@ public class ProductController {
     public ResponseEntity<ProductResponse> getProductsByKeyword(@RequestParam(name = "keyword", required = false) String keyword,
                                                                 @RequestParam(name = "minPrice", required = false) Long minPrice,
                                                                 @RequestParam(name = "maxPrice", required = false) Long maxPrice,
+                                                                @RequestParam(name = "categoryId", required = false) Long categoryId,
+                                                                @RequestParam(name = "storeId", required = false) Long storeId,
                                                                 @RequestParam(name = "pageNumber", defaultValue = Constants.PAGE_NUMBER, required = false) Integer pageNumber,
                                                                 @RequestParam(name = "pageSize", defaultValue = Constants.PAGE_SIZE, required = false) Integer pageSize,
                                                                 @RequestParam(name = "sortBy", defaultValue = Constants.SORT_BY, required = false) String sortBy,
                                                                 @RequestParam(name = "sortOrder", defaultValue = Constants.SORT_DIR, required = false) String sortOrder) {
 
-        ProductResponse productResponse = productService.searchProductByKeyword(keyword, minPrice, maxPrice, pageNumber, pageSize, sortBy,
+        ProductResponse productResponse = productService.searchProduct(keyword, minPrice, maxPrice, categoryId, storeId, pageNumber, pageSize, sortBy,
                 sortOrder);
 
         return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
