@@ -24,6 +24,7 @@ public interface VariantMapper {
      */
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "sizeDTOS", source = "variant.sizes")
     VariantDTO toDTO(Variant variant);
 
     /**

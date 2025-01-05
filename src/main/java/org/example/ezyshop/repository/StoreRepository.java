@@ -33,5 +33,9 @@ public interface StoreRepository extends JpaRepository<StoreEntity, Long> {
             "and u.id = (?1) ")
     StoreEntity findByUserId(Long userId);
 
-
+    @Query("SELECT s " +
+            "FROM StoreEntity s " +
+            "LEFT JOIN User u ON s.user.id = u.id " +
+            "where u.id = (?1) ")
+    StoreEntity findStoreIfExists(Long userId);
 }

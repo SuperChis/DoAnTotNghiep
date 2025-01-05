@@ -4,6 +4,7 @@ import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.address.AddressRequest;
 import org.example.ezyshop.dto.address.AddressResponse;
 import org.example.ezyshop.dto.store.CreateStoreRequest;
+import org.example.ezyshop.dto.store.StoreRequestState;
 import org.example.ezyshop.dto.store.StoreResponse;
 import org.example.ezyshop.dto.user.UserRequest;
 import org.example.ezyshop.dto.user.UserResponse;
@@ -29,6 +30,7 @@ public class UserController {
 
     @Autowired
     private StoreService storeService;
+
     @Autowired
     private AmazonClient amazonClient;
 
@@ -83,6 +85,12 @@ public class UserController {
     @PostMapping("/create-store-request")
     public ResponseEntity<StoreResponse> requestCreateStore(@RequestBody CreateStoreRequest request) {
         StoreResponse response = storeService.requestCreateStore(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/store-request-state")
+    public ResponseEntity<StoreRequestState> getStoreRequestState() {
+        StoreRequestState response = storeService.getStoreRequestState();
         return ResponseEntity.ok(response);
     }
 }

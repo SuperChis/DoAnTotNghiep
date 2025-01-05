@@ -26,7 +26,7 @@ public interface ProductService {
 
 //    ProductResponse updateProductImage(Long productId, MultipartFile image) throws IOException;
 
-    ProductResponse searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
+    ProductResponse searchProductByKeyword(String keyword, Long minPrice, Long maxPrice, Integer pageNumber, Integer pageSize, String sortBy,
                                            String sortOrder);
 
     ProductResponse deleteProduct(Long productId);

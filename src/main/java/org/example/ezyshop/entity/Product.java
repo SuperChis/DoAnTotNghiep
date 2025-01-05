@@ -33,10 +33,10 @@ public class Product extends BaseEntity {
     @Column()
     private double specialPrice;
 
-    @Column()
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
-    @Column()
+    @Column(columnDefinition = "LONGTEXT")
     private String summary;
 
     @Column(name = "image")

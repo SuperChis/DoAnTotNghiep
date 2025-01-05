@@ -5,10 +5,14 @@ import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.product.ProductDTO;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
+import org.example.ezyshop.dto.review.ReviewDTO;
+import org.example.ezyshop.dto.variant.VariantDTO;
 import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
+import org.example.ezyshop.mapper.ReviewMapper;
+import org.example.ezyshop.mapper.VariantMapper;
 import org.example.ezyshop.repository.*;
 import org.example.ezyshop.service.AmazonClient;
 import org.example.ezyshop.service.FileStorageService;
@@ -50,6 +54,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private AmazonClient amazonClient;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
 //    @Autowired
@@ -203,6 +209,12 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getById(Long id) {
         Product product = repository.findByIdAndIsDeletedFalse(id);
         ProductDTO dto = ProductMapper.MAPPER.toDTO(product);
+        List<Review> reviews = reviewRepository.findByProductId(product.getId());
+        List<ReviewDTO> reviewDTOS = reviews.stream().map(ReviewMapper.INSTANCE::toDto).toList();
+        dto.setReviewDTOS(reviewDTOS);
+        List<Variant> variants = variantRepository.findByProductId(product.getId());
+        List<VariantDTO> variantDTOS = variants.stream().map(VariantMapper.MAPPER::toDTO).toList();
+        dto.setVariantDTOS(variantDTOS);
         return new ProductResponse(true, 200).setDto(dto);
     }
 
@@ -260,13 +272,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductResponse searchProductByKeyword(String keyword, Long minPrice, Long maxPrice,
+                                                  Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
-        Page<Product> pageProducts = repository.searchByKeyword(keyword, pageDetails);
+        Page<Product> pageProducts = repository.searchByKeyword(keyword, minPrice, maxPrice, pageDetails);
 
         List<Product> products = pageProducts.getContent();
 

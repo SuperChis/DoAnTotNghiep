@@ -29,5 +29,5 @@ public class Review extends BaseEntity {
     private User user;
 
     @Column(nullable = false)
-    private boolean verifiedPurchase; // Đánh giá có phải từ người mua hàng hay không
+    private boolean verifiedPurchase;
 }

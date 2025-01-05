@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.ezyshop.dto.category.CategoryDTO;
+import org.example.ezyshop.dto.review.ReviewDTO;
 import org.example.ezyshop.dto.variant.VariantDTO;
+import org.example.ezyshop.entity.Review;
 import org.example.ezyshop.entity.Variant;
 
 import java.util.List;
@@ -24,4 +26,5 @@ public class ProductDTO {
     private double specialPrice;
     private CategoryDTO categoryDTO;
     private List<VariantDTO> variantDTOS;
+    List<ReviewDTO> reviewDTOS;
 }

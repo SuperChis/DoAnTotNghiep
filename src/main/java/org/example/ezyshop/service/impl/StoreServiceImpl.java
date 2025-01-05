@@ -3,6 +3,7 @@ package org.example.ezyshop.service.impl;
 import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.store.CreateStoreRequest;
 import org.example.ezyshop.dto.store.StoreDTO;
+import org.example.ezyshop.dto.store.StoreRequestState;
 import org.example.ezyshop.dto.store.StoreResponse;
 import org.example.ezyshop.entity.Role;
 import org.example.ezyshop.entity.StoreEntity;
@@ -48,6 +49,24 @@ public class StoreServiceImpl implements StoreService {
         store.setLastUpdate(new Date());
         repository.save(store);
         return new StoreResponse(true, 200, "Request Created Store Successfully. Please wait admin confirm your request.");
+    }
+
+    @Override
+    public StoreRequestState getStoreRequestState() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        StoreRequestState response = new StoreRequestState(true, 200);
+        response.setRequesting(false);
+        response.setApproved(false);
+        StoreEntity store = repository.findStoreIfExists(user.getId());
+        if (store != null) {
+            response.setRequesting(true);
+            if (store.isApproved()) {
+                response.setApproved(true);
+            }
+        }
+        return response;
     }
 
     @Override
