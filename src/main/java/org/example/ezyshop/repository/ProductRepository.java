@@ -30,8 +30,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p " +
             "FROM Product p " +
             "WHERE p.category.id = :categoryId " +
-            "AND p.isDeleted = false")
+            "AND p.isDeleted = false " +
+            "AND p.category.isDeleted = false ")
     Page<Product> findByCategoryAndIsDeletedFalse(@Param("categoryId") Long categoryId, Pageable pageable);
+
+    @Query("SELECT p " +
+            "FROM Product p " +
+            "WHERE p.category.id = :categoryId " +
+            "AND p.isDeleted = false " +
+            "AND p.category.isDeleted = false " +
+            "AND p.id != :productId " )
+    List<Product> findSameByCategory(@Param("categoryId") Long categoryId,
+                                     @Param("productId") Long productId,
+                                     Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Product p " +
@@ -41,6 +52,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND st.isDeleted = false")
     Page<Product> findByStoreAndIsDeletedFalse(@Param("storeId") Long storeId, Pageable pageable);
 
+    @Query("SELECT p " +
+            "FROM Product p " +
+            "LEFT JOIN StoreEntity st ON p.store.id = st.id " +
+            "WHERE p.store.id = :storeId " +
+            "AND p.isDeleted = false " +
+            "AND st.isDeleted = false " +
+            "AND p.id != :productId")
+    List<Product> findSameByStore(@Param("storeId") Long storeId,
+                                  @Param("productId") Long productId,
+                                  Pageable pageable);
+
+    @Query(value = "SELECT p " +
+            "       FROM Product p " +
+            "       LEFT JOIN Category c ON p.category.id = c.id " +
+            "       WHERE p.isDeleted = FALSE " +
+            "           AND c.isDeleted = FALSE "
+    )
     Page<Product> findByIsDeletedFalse(Pageable pageable);
 
     @Query(value = "SELECT p " +

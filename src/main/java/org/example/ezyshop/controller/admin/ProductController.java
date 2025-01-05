@@ -86,7 +86,7 @@ public class ProductController {
         ProductResponse productResponse = productService.searchProduct(keyword, minPrice, maxPrice, categoryId, storeId, pageNumber, pageSize, sortBy,
                 sortOrder);
 
-        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
+        return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
     @PutMapping("/admin/{productId}")
@@ -94,7 +94,7 @@ public class ProductController {
                                                     @PathVariable Long productId) {
         ProductResponse updatedProduct = productService.updateProduct(productId, request);
 
-        return new ResponseEntity<ProductResponse>(updatedProduct, HttpStatus.OK);
+        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 
 

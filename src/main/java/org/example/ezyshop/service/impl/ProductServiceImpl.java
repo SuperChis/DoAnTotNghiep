@@ -5,6 +5,7 @@ import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.product.ProductDTO;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
+import org.example.ezyshop.dto.product.SameProductDTO;
 import org.example.ezyshop.dto.review.ReviewDTO;
 import org.example.ezyshop.dto.variant.VariantDTO;
 import org.example.ezyshop.entity.*;
@@ -111,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
 
         repository.save(product);
 
-        return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toDTO(product));
+        return new ProductResponse(true, 200).setDto(ProductMapper.MAPPER.toProductDTO(product));
 
     }
 
@@ -146,7 +147,7 @@ public class ProductServiceImpl implements ProductService {
                 Product::getId,
                 Product::getVariants
         ));
-        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
+        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toProductDTO)
                 .collect(Collectors.toList());
 
 //        productDTOs = productDTOs.stream()
@@ -179,7 +180,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> pageProducts = repository.findByCategoryAndIsDeletedFalse(categoryId, pageable);
         List<Product> products = pageProducts.getContent();
-        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
+        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toProductDTO)
                 .collect(Collectors.toList());
 
         return new ProductResponse(true, 200)
@@ -197,7 +198,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> pageProducts = repository.findByStoreAndIsDeletedFalse(storeId, pageable);
         List<Product> products = pageProducts.getContent();
-        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
+        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toProductDTO)
                 .collect(Collectors.toList());
 
         return new ProductResponse(true, 200)
@@ -208,14 +209,107 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse getById(Long id) {
         Product product = repository.findByIdAndIsDeletedFalse(id);
-        ProductDTO dto = ProductMapper.MAPPER.toDTO(product);
+        ProductDTO dto = ProductMapper.MAPPER.toProductDTO(product);
+
         List<Review> reviews = reviewRepository.findByProductId(product.getId());
         List<ReviewDTO> reviewDTOS = reviews.stream().map(ReviewMapper.INSTANCE::toDto).toList();
+        int totalRating = reviews.stream()
+                .mapToInt(Review::getRating)
+                .sum();
+        double averageRating = reviews.isEmpty() ? 0.0 : (double) totalRating / reviews.size();
         dto.setReviewDTOS(reviewDTOS);
+        dto.setReviewNumber(reviews.size());
+        dto.setAverageRating(averageRating);
+
         List<Variant> variants = variantRepository.findByProductId(product.getId());
         List<VariantDTO> variantDTOS = variants.stream().map(VariantMapper.MAPPER::toDTO).toList();
         dto.setVariantDTOS(variantDTOS);
-        return new ProductResponse(true, 200).setDto(dto);
+
+        //Same product
+        Pageable pageable = PageRequest.of(0, 4);
+        List<Product> productSameCategory = repository.findSameByCategory(product.getCategory().getId(),
+                product.getId(), pageable);
+
+        List<Long> productIds = productSameCategory.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<Review> allReviewsForSameCategory = reviewRepository.findByProductIdIn(productIds);
+
+        // Nhóm các review theo productId
+        Map<Long, List<Review>> reviewsByProductId = allReviewsForSameCategory.stream()
+                .collect(Collectors.groupingBy(review -> review.getProduct().getId()));
+
+        List<SameProductDTO> productSameCategoryDTO = productSameCategory.stream().map(p -> {
+            // Lấy danh sách review tương ứng với productId
+            List<Review> productReviews = reviewsByProductId.getOrDefault(p.getId(), List.of());
+
+            // Tính tổng số review và trung bình rating
+            int sumRating = productReviews.stream()
+                    .mapToInt(Review::getRating)
+                    .sum();
+            double avrRating = productReviews.isEmpty() ? 0.0 : (double) sumRating / productReviews.size();
+
+            // Chuyển đổi review sang DTO
+//            List<ReviewDTO> reviewDTOS = productReviews.stream()
+//                    .map(ReviewMapper.INSTANCE::toDto)
+//                    .toList();
+
+            // Map dữ liệu vào ProductDTO
+            SameProductDTO sameProductDTO = ProductMapper.MAPPER.toSameProductDTO(p);
+            sameProductDTO.setReviewNumber((long) productReviews.size());
+            sameProductDTO.setAverageRating(avrRating);
+            return sameProductDTO;
+        }).toList();
+
+//        List<SameProductDTO> productSameCategoryDTO = productSameCategory.stream()
+//                .map(ProductMapper.MAPPER::toSameProductDTO)
+//                .toList();
+
+
+        List<Product> productSameStore = repository.findSameByStore(product.getStore().getId(),
+                product.getId(), pageable);
+
+        List<Long> productIdsForSameStore = productSameStore.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<Review> allReviewsForSameStore = reviewRepository.findByProductIdIn(productIdsForSameStore);
+
+        // Nhóm các review theo productId
+        Map<Long, List<Review>> reviewsByProductIdForSameStore = allReviewsForSameStore.stream()
+                .collect(Collectors.groupingBy(review -> review.getProduct().getId()));
+
+        List<SameProductDTO> productSameStoreDTO = productSameStore.stream().map(p -> {
+            // Lấy danh sách review tương ứng với productId
+            List<Review> productReviews = reviewsByProductIdForSameStore.getOrDefault(p.getId(), List.of());
+
+            // Tính tổng số review và trung bình rating
+            int sumRating = productReviews.stream()
+                    .mapToInt(Review::getRating)
+                    .sum();
+            double avrRating = productReviews.isEmpty() ? 0.0 : (double) sumRating / productReviews.size();
+
+            // Chuyển đổi review sang DTO
+//            List<ReviewDTO> reviewDTOS = productReviews.stream()
+//                    .map(ReviewMapper.INSTANCE::toDto)
+//                    .toList();
+
+            // Map dữ liệu vào ProductDTO
+            SameProductDTO sameProductDTO = ProductMapper.MAPPER.toSameProductDTO(p);
+            sameProductDTO.setReviewNumber((long) productReviews.size());
+            sameProductDTO.setAverageRating(avrRating);
+            return sameProductDTO;
+        }).toList();
+
+//        List<SameProductDTO> productSameStoreDTO = productSameStore.stream()
+//                .map(ProductMapper.MAPPER::toSameProductDTO)
+//                .toList();
+
+        return new ProductResponse(true, 200)
+                .setDto(dto)
+                .setProductSameCategory(productSameCategoryDTO)
+                .setProductSameStore(productSameStoreDTO);
     }
 
     @Override
@@ -268,7 +362,7 @@ public class ProductServiceImpl implements ProductService {
 //        cartDTOs.forEach(cart -> cartService.updateProductInCarts(cart.getCartId(), productId));
 
         return new ProductResponse(true, 200)
-                .setDto(ProductMapper.MAPPER.toDTO(productFromDB));
+                .setDto(ProductMapper.MAPPER.toProductDTO(productFromDB));
     }
 
     @Override
@@ -283,8 +377,39 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> products = pageProducts.getContent();
 
-        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toDTO)
-                .collect(Collectors.toList());
+        List<Long> productIds = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<Review> allReviews = reviewRepository.findByProductIdIn(productIds);
+
+        // Nhóm các review theo productId
+        Map<Long, List<Review>> reviewsByProductId = allReviews.stream()
+                .collect(Collectors.groupingBy(review -> review.getProduct().getId()));
+
+        List<ProductDTO> productDTOs = products.stream().map(p -> {
+            // Lấy danh sách review tương ứng với productId
+            List<Review> productReviews = reviewsByProductId.getOrDefault(p.getId(), List.of());
+
+            int sumRating = productReviews.stream()
+                    .mapToInt(Review::getRating)
+                    .sum();
+            double avrRating = productReviews.isEmpty() ? 0.0 : (double) sumRating / productReviews.size();
+
+            List<ReviewDTO> reviewDTOS = productReviews.stream()
+                    .map(ReviewMapper.INSTANCE::toDto)
+                    .toList();
+
+            // Map dữ liệu vào ProductDTO
+            ProductDTO productDTO = ProductMapper.MAPPER.toProductDTO(p);
+            productDTO.setReviewNumber(productReviews.size());
+            productDTO.setAverageRating(avrRating);
+            productDTO.setReviewDTOS(reviewDTOS);
+            return productDTO;
+        }).toList();
+
+//        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toProductDTO)
+//                .collect(Collectors.toList());
 
         return new ProductResponse(true, 200)
                 .setDtoList(productDTOs)

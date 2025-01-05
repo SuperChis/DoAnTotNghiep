@@ -58,6 +58,9 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Variant> variants = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private List<Review> reviews = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
     private StoreEntity store;

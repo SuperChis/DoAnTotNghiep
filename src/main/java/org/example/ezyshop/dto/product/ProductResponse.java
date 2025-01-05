@@ -11,10 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
-public class ProductResponse extends BaseResponse {
+public class
+ProductResponse extends BaseResponse {
 
     private ProductDTO dto;
     private List<ProductDTO> dtoList;
+    private List<SameProductDTO> productSameCategory;
+    private List<SameProductDTO> productSameStore;
     private PageDto pageDto;
 
     public ProductResponse(boolean success, int code) {

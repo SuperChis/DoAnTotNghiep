@@ -6,7 +6,6 @@ import org.example.ezyshop.dto.cart.AddToCartRequest;
 import org.example.ezyshop.dto.cart.CartDTO;
 import org.example.ezyshop.dto.cart.CartItemDTO;
 import org.example.ezyshop.dto.cart.CartResponse;
-import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
@@ -17,8 +16,6 @@ import org.example.ezyshop.repository.ProductRepository;
 import org.example.ezyshop.repository.SizeRepository;
 import org.example.ezyshop.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -58,7 +55,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDTO mapToCartItemDTO(CartItem item) {
         CartItemDTO cartItemDTO = new CartItemDTO();
-        cartItemDTO.setProductDTO(ProductMapper.MAPPER.toDTO(item.getProduct()));
+        cartItemDTO.setProductDTO(ProductMapper.MAPPER.toProductDTO(item.getProduct()));
         cartItemDTO.setId(item.getId());
         cartItemDTO.setCartId(item.getCart().getId());
         cartItemDTO.setProductPrice(item.getProductPrice());
