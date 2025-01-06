@@ -94,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = ProductMapper.MAPPER.toModel(request);
         product.setCategory(savedCategory);
-
+        product.setQuantity(0);
         double specialPrice = product.getOriginalPrice() - ((product.getDiscount() * 0.01) * product.getOriginalPrice());
         product.setSpecialPrice(specialPrice);
         product.setDeleted(false);

@@ -15,10 +15,10 @@ public interface CartItemMapper {
 
     CartItemMapper MAPPER = Mappers.getMapper(CartItemMapper.class);
 
-    @Mapping(target = "cartId", source = "cart.id") // Ánh xạ cartId từ cart
-    @Mapping(target = "productDTO", source = "product") // Sử dụng ProductMapper để ánh xạ product -> productDTO
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    CartItemDTO toDTO(CartItem cartItem);
+//    @Mapping(target = "cartId", source = "cart.id") // Ánh xạ cartId từ cart
+//    @Mapping(target = "productDTO", source = "product") // Sử dụng ProductMapper để ánh xạ product -> productDTO
+//    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+//    CartItemDTO toDTO(CartItem cartItem);
 
     @Mapping(target = "cart", ignore = true) // Không ánh xạ ngược cart (phải ánh xạ riêng nếu cần)
     @Mapping(target = "product", source = "productDTO") // Sử dụng ProductMapper để ánh xạ productDTO -> product
