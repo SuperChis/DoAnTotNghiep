@@ -26,8 +26,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT new org.example.ezyshop.dto.category.CategoryDTO(c.id, c.name, c.description, COUNT(p.id)) " +
             "FROM Category c " +
-            "LEFT JOIN Product p on c.id = p.id " +
+            "LEFT JOIN Product p on c.id = p.category.id " +
             "WHERE c.isDeleted = false " +
+            "   AND p.isDeleted = false " +
             "GROUP BY c.id, c.name, c.description " +
             "ORDER BY COUNT(p.id) DESC")
     List<CategoryDTO> findTopCategoriesByProductCount(Pageable pageable);
