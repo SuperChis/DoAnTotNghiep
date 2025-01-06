@@ -107,5 +107,16 @@ public class CategoryServiceImpl implements CategoryService {
         return new CategoryResponse(true, 200);
     }
 
+    @Override
+    public CategoryResponse getHighlight() {
+
+        Pageable pageable = PageRequest.of(0, 8);
+
+        List<CategoryDTO> results = repository.findTopCategoriesByProductCount(pageable);
+
+        return new CategoryResponse(true, 200)
+                .setDtoList(results);
+    }
+
 
 }

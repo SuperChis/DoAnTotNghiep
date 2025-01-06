@@ -16,4 +16,6 @@ public interface CategoryService {
 
     CategoryResponse deleteCategory(Long categoryId);
 
+    CategoryResponse getHighlight();
+
 }

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.ezyshop.constant.Constants;
 import org.example.ezyshop.dto.category.CategoryRequest;
 import org.example.ezyshop.dto.category.CategoryResponse;
+import org.example.ezyshop.dto.product.ProductResponse;
 import org.example.ezyshop.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,14 @@ public class CategoryController {
         CategoryResponse categoryResponse = service.getCategories(pageNumber, pageSize, sortBy, sortOrder);
 
         return new ResponseEntity<CategoryResponse>(categoryResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/highlight")
+    public ResponseEntity<CategoryResponse> getHighlight() {
+
+        CategoryResponse response = service.getHighlight();
+
+        return new ResponseEntity<CategoryResponse>(response, HttpStatus.OK);
     }
 
     @GetMapping("/all")

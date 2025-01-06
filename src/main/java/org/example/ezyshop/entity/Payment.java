@@ -22,6 +22,5 @@ public class Payment extends BaseEntity {
     private Order order;
 
     @NotBlank
-//    @Size(min = 4, message = "Payment method must contain atleast 4 characters")
     private String paymentMethod;
 }

@@ -165,6 +165,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponse getHighlightProducts() {
+
+        Pageable pageable = PageRequest.of(0, 8);
+
+        Page<Product> pageProducts = repository.findHighlightProduct(pageable);
+
+        List<Product> products = pageProducts.getContent();
+        Map<Long, List<Variant>> mapVariantByProductId = products.stream().collect(Collectors.toMap(
+                Product::getId,
+                Product::getVariants
+        ));
+        List<ProductDTO> productDTOs = products.stream().map(ProductMapper.MAPPER::toProductDTO)
+                .collect(Collectors.toList());
+
+
+        return new ProductResponse(true, 200)
+                .setDtoList(productDTOs);
+    }
+
+    @Override
     public ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
                                             String sortOrder) {
 

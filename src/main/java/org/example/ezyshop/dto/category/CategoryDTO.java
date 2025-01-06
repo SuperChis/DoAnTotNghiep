@@ -9,4 +9,16 @@ public class CategoryDTO {
     private String name;
 
     private String description;
+
+    private Long quantity;
+
+    public CategoryDTO() {
+    }
+
+    public CategoryDTO(Long id, String name, String description, Long quantity) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.quantity = quantity;
+    }
 }

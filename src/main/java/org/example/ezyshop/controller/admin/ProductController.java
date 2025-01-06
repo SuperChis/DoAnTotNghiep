@@ -26,6 +26,14 @@ public class ProductController {
 //        return new ResponseEntity<ProductResponse>(response, HttpStatus.CREATED);
 //    }
 
+    @GetMapping("/public/highlight")
+    public ResponseEntity<ProductResponse> getHighlightProducts() {
+
+        ProductResponse productResponse = productService.getHighlightProducts();
+
+        return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
+    }
+
     @GetMapping("/public/all")
     public ResponseEntity<ProductResponse> getAllProducts(
             @RequestParam(name = "pageNumber", defaultValue = Constants.PAGE_NUMBER, required = false) Integer pageNumber,

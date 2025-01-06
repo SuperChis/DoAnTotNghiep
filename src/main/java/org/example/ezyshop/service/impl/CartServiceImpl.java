@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDTO mapToCartItemDTO(CartItem item) {
         CartItemDTO cartItemDTO = new CartItemDTO();
-        cartItemDTO.setProductDTO(ProductMapper.MAPPER.toProductDTOInCart(item.getProduct()));
+        cartItemDTO.setProductDTO(ProductMapper.MAPPER.toProductDTO(item.getProduct()));
         cartItemDTO.setId(item.getId());
         cartItemDTO.setCartId(item.getCart().getId());
         cartItemDTO.setProductPrice(item.getProductPrice());

@@ -1,5 +1,6 @@
 package org.example.ezyshop.repository;
 
+import org.example.ezyshop.dto.category.CategoryDTO;
 import org.example.ezyshop.entity.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,12 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "FROM Category c " +
             "WHERE c.isDeleted = false ")
     List<Category> findAll();
+
+    @Query("SELECT new org.example.ezyshop.dto.category.CategoryDTO(c.id, c.name, c.description, COUNT(p.id)) " +
+            "FROM Category c " +
+            "LEFT JOIN Product p on c.id = p.id " +
+            "WHERE c.isDeleted = false " +
+            "GROUP BY c.id, c.name, c.description " +
+            "ORDER BY COUNT(p.id) DESC")
+    List<CategoryDTO> findTopCategoriesByProductCount(Pageable pageable);
 }

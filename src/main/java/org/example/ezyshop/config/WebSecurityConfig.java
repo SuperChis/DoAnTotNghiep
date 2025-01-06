@@ -78,12 +78,13 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(
                         (requests) -> requests
                                 .requestMatchers("/api/files/upload", "/uploads/**",
-                                        "/api/public/**", "/api/payment/**", "/api/categories").permitAll()
+                                        "/api/public/**", "/api/payment/**", "/api/categories",
+                                        "/api/categories/all", "/api/categories/highlight").permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, "/**",
                                         "/api/product/public/**").permitAll()
                                 .requestMatchers("/api/auth/**",  "/api/product/public/**").permitAll()
                                 .requestMatchers("/api/auth/user/**", "/api/user/**",
-                                        "api/cart/user/**", "/api/order/**").hasRole("USER")
+                                        "api/cart/user/**", "/api/order/**", "/api/review/**").hasRole("USER")
                                 .requestMatchers("/api/store/product/add","/api/store/**").hasRole("STORE")
                                 .requestMatchers("/api/categories/admin/**", "/api/product/admin/categories",
                                 "/api/product/admin/**", "/api/admin/request/**",

@@ -76,6 +76,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "       LEFT JOIN Category c ON p.category.id = c.id " +
             "       WHERE p.isDeleted = FALSE " +
             "           AND c.isDeleted = FALSE " +
+            "       ORDER BY p.quantity desc ")
+    Page<Product> findHighlightProduct(Pageable pageable);
+
+    @Query(value = "SELECT p " +
+            "       FROM Product p " +
+            "       LEFT JOIN Category c ON p.category.id = c.id " +
+            "       WHERE p.isDeleted = FALSE " +
+            "           AND c.isDeleted = FALSE " +
             "           AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "           AND (:minPrice IS NULL OR p.originalPrice >= :minPrice ) " +
             "           AND (:maxPrice IS NULL OR p.originalPrice <= :maxPrice )" +

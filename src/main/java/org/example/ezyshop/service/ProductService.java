@@ -13,6 +13,8 @@ public interface ProductService {
 
     ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
+    ProductResponse getHighlightProducts();
+
     ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
                                      String sortOrder);
 
