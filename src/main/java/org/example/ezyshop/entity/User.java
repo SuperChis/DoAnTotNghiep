@@ -24,14 +24,14 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    @Column()
+    @Column(nullable = false)
     private String password;
 
     private String sex;
 
     private Date birthDay;
 
-    @Column(nullable = false)
+    @Column()
     private String phoneNumber;
 
     private String avatarUrl;
