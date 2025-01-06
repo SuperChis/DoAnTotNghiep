@@ -2,6 +2,7 @@ package org.example.ezyshop.dto.cart;
 
 import lombok.Data;
 import org.example.ezyshop.dto.product.ProductDTO;
+import org.example.ezyshop.dto.variant.VariantDTO;
 
 @Data
 public class CartItemDTO {
@@ -16,4 +17,5 @@ public class CartItemDTO {
     private Long sizeId;
     private Long sizeStock;
     private String urlImage;
+    private VariantDTO variantDTO;
 }

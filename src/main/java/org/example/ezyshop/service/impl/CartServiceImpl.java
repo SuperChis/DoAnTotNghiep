@@ -7,6 +7,7 @@ import org.example.ezyshop.entity.*;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.ProductMapper;
+import org.example.ezyshop.mapper.VariantMapper;
 import org.example.ezyshop.repository.CartItemRepository;
 import org.example.ezyshop.repository.CartRepository;
 import org.example.ezyshop.repository.ProductRepository;
@@ -41,9 +42,29 @@ public class CartServiceImpl implements CartService {
     private CartDTO toDTO(Cart cart) {
         CartDTO dto = new CartDTO();
         List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+        List<Long> sizeIds = cartItems.stream().map(CartItem::getSizeId).toList();
+        List<SizeEntity> sizes = sizeRepository.findByIdIn(sizeIds);
+        Map<Long, SizeEntity> mapSizeById = sizes.stream()
+                .collect(Collectors.toMap(
+                        SizeEntity::getId, // Sử dụng sizeId làm key
+                        Function.identity() // Giá trị là chính SizeEntity
+                ));
+//        List<CartItemDTO> cartItemDTOS = cartItems.stream()
+//                .map(this::mapToCartItemDTO)
+//                .collect(Collectors.toList());
+
         List<CartItemDTO> cartItemDTOS = cartItems.stream()
-                .map(this::mapToCartItemDTO)
-                .collect(Collectors.toList());
+                .map(cartItem -> {
+                    CartItemDTO cartItemDTO = mapToCartItemDTO(cartItem); // Hàm ánh xạ cơ bản
+                    SizeEntity sizeEntity = mapSizeById.get(cartItem.getSizeId());
+                    if (sizeEntity != null) {
+                        cartItemDTO.setSize(sizeEntity.getSize()); // Ánh xạ sizeName
+                        cartItemDTO.setSizeStock((long) sizeEntity.getStock());
+                        cartItemDTO.setUrlImage(sizeEntity.getVariant().getImageUrl());// Ánh xạ stock
+                    }
+                    return cartItemDTO;
+                })
+                .toList();
 
         dto.setCartItemDTOS(cartItemDTOS);
         dto.setId(cart.getId());
@@ -165,6 +186,7 @@ public class CartServiceImpl implements CartService {
                 .map(cartItem -> {
                     CartItemDTO dto = mapToCartItemDTO(cartItem); // Hàm ánh xạ cơ bản
                     SizeEntity sizeEntity = mapSizeById.get(cartItem.getSizeId());
+                    dto.setVariantDTO(VariantMapper.MAPPER.toDTO(sizeEntity.getVariant()));
                     if (sizeEntity != null) {
                         dto.setSize(sizeEntity.getSize()); // Ánh xạ sizeName
                         dto.setSizeStock((long) sizeEntity.getStock());
