@@ -57,6 +57,14 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Query("SELECT ci " +
             "FROM CartItem ci " +
             "LEFT JOIN Cart c ON ci.cart.id = c.id " +
+            "WHERE ci.id IN (?1) " +
+            "   AND c.isDeleted = false " +
+            "   AND ci.isDeleted = false ")
+    List<CartItem> findByCartItemIdIn(List<Long> cartItemIds);
+
+    @Query("SELECT ci " +
+            "FROM CartItem ci " +
+            "LEFT JOIN Cart c ON ci.cart.id = c.id " +
             "WHERE ci.id = ?1 " +
             "   AND c.isDeleted = false " +
             "   AND ci.isDeleted = false ")

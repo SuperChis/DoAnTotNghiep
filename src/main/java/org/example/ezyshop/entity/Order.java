@@ -8,6 +8,7 @@ import org.example.ezyshop.base.BaseEntity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -19,7 +20,7 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    private LocalDate orderDate;
+    private Date orderDate;
 
     @OneToOne
     @JoinColumn(name = "payment_id")
@@ -28,6 +29,14 @@ public class Order extends BaseEntity {
     private Double totalAmount;
 
     private String status;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipment_id")
+    private Shipment shipment;
 
     private boolean isDeleted;
 }

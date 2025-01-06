@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseEntity;
 
 @Entity
@@ -14,6 +15,7 @@ import org.example.ezyshop.base.BaseEntity;
 @Table(name = "order_items")
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 public class OrderItem extends BaseEntity {
 
     private Integer quantity;
@@ -25,6 +27,10 @@ public class OrderItem extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
+    private Long sizeId;
+
+    private Long variantId;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

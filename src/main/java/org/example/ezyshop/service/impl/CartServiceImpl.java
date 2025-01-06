@@ -243,5 +243,12 @@ public class CartServiceImpl implements CartService {
 
         return new CartResponse(true, 200, "delete cart item succesfully");
     }
+
+    @Override
+    public void clearCart(List<Long> cartItemIds) {
+        List<CartItem> cartItems = cartItemRepository.findByCartItemIdIn(cartItemIds);
+        cartItems.forEach(item -> item.setDeleted(true)); // Xóa mềm các CartItem
+        cartItemRepository.saveAll(cartItems);
+    }
 }
 

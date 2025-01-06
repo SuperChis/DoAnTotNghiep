@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import net.minidev.json.annotate.JsonIgnore;
 import org.example.ezyshop.base.BaseEntity;
 import org.example.ezyshop.enums.ShipmentStatus;
 
@@ -28,4 +29,8 @@ public class Shipment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ShipmentStatus status;
 
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

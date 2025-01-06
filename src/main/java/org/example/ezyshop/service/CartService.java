@@ -22,4 +22,6 @@ public interface CartService {
 //    void updateProductInCarts(Long cartId, Long productId);
 //
     CartResponse deleteCartItem(Long cartItemId);
+
+    void clearCart(List<Long> cartItemIds);
 }
