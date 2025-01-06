@@ -207,6 +207,7 @@ public class CartServiceImpl implements CartService {
             cartItem.setProductPrice(specialPrice);
             cartItem.setLastUpdate(new Date());
             cart.setTotalPrice(cart.getTotalPrice() + cartItem.getProductPrice() * cartItem.getQuantity() - cartItem.getProductPrice() * oldQuantity);
+            if(request.getQuantity() == 0) cartItem.setDeleted(true);
             sizeRepository.save(size);
         }
 
