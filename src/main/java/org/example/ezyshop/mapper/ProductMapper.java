@@ -31,7 +31,7 @@ public interface ProductMapper {
     @Mapping(target="price",source = "originalPrice")
     @Mapping(target="storeId",source = "product.store.id")
     @Mapping(target="storeName",source = "product.store.name")
-//    @Mapping(target = "productDTO.variantDTOS.sizeDTOS", source = "product.variants.sizes")
+//    @Mapping(target = "variantDTOS.sizeDTOS", source = "variants.sizes")
     ProductDTO toProductDTO(Product product);
 
     @Mapping(target = "productId", source = "id")

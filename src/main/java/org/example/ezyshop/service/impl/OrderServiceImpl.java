@@ -6,12 +6,16 @@ import org.example.ezyshop.dto.order.OrderDTO;
 import org.example.ezyshop.dto.order.OrderItemDTO;
 import org.example.ezyshop.dto.order.OrderRequest;
 import org.example.ezyshop.dto.order.OrderResponse;
+import org.example.ezyshop.dto.product.ProductDTO;
 import org.example.ezyshop.dto.shipment.ShipmentDTO;
 import org.example.ezyshop.entity.*;
 import org.example.ezyshop.enums.ShipmentStatus;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
 import org.example.ezyshop.mapper.PaymentMapper;
+import org.example.ezyshop.mapper.ProductMapper;
+import org.example.ezyshop.mapper.SizeMapper;
+import org.example.ezyshop.mapper.VariantMapper;
 import org.example.ezyshop.repository.*;
 import org.example.ezyshop.service.CartService;
 import org.example.ezyshop.service.OrderService;
@@ -55,6 +59,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private SizeRepository sizeRepository;
 
     @Override
     @Transactional
@@ -112,6 +118,8 @@ public class OrderServiceImpl implements OrderService {
         shipment.setPrice(totalPrice);
         shipment.setName(user.getUsername());
         shipment.setAddress(address.getProvince()+ ", " + address.getDistrict() + ", " + address.getWard());
+        shipment.setCreated(new Date());
+        shipment.setLastUpdate(new Date());
 //        order.setShipment(shipment);
 
         try {
@@ -192,7 +200,20 @@ public class OrderServiceImpl implements OrderService {
         List<Order> orders = repository.findByUserId(user.getId());
         List<Long> orderIds = orders.stream().map(Order::getId).toList();
         List<OrderItem> orderItems = orderItemRepository.findByOrderIdIn(orderIds);
-        List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
+
+        List<Long> sizeIds = orderItems.stream().map(OrderItem::getSizeId).toList();
+        List<SizeEntity> sizeEntities = sizeRepository.findByIdIn(sizeIds);
+        Map<Long, SizeEntity> sizeMap = sizeEntities.stream()
+                .collect(Collectors.toMap(SizeEntity::getId, sizeEntity -> sizeEntity));
+
+        List<OrderItemDTO> itemDTOs = orderItems.stream().map(orderItem -> {
+            OrderItemDTO orderItemDTO =  this.mapToOrderItemDTO(orderItem);
+            SizeEntity sizeEntity = sizeMap.get(orderItem.getSizeId());
+            orderItemDTO.setSizeDTO(SizeMapper.INSTANCE.toDTO(sizeEntity));
+            orderItemDTO.setVariantDTO(VariantMapper.MAPPER.toDTOInOrder(sizeEntity.getVariant()));
+            return orderItemDTO;
+        }).toList();
+
         Map<Long, List<OrderItemDTO>> mapItemDTOSByOrderId = itemDTOs.stream()
                 .collect(Collectors.groupingBy(OrderItemDTO::getOrderId));
 

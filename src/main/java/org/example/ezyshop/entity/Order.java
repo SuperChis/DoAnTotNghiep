@@ -31,7 +31,6 @@ public class Order extends BaseEntity {
     private String status;
     /*
     PENDING: Chờ thanh toán.
-
     PAID: Đã thanh toán.
     CANCELLED: Đơn hàng đã bị hủy.
     SHIPPED: Đơn hàng đã được gửi đi.

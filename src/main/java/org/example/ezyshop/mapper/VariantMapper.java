@@ -27,6 +27,9 @@ public interface VariantMapper {
     @Mapping(target = "sizeDTOS", source = "variant.sizes")
     VariantDTO toDTO(Variant variant);
 
+    @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "productName", source = "product.name")
+    VariantDTO toDTOInOrder(Variant variant);
     /**
      * Cập nhật Product entity từ ProductRequest.
      */
