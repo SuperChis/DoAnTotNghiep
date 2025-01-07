@@ -2,6 +2,7 @@ package org.example.ezyshop.dto.order;
 
 import lombok.Data;
 import org.example.ezyshop.dto.payment.PaymentDTO;
+import org.example.ezyshop.dto.shipment.ShipmentDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,5 +16,6 @@ public class OrderDTO {
     private String status;
     private PaymentDTO paymentDTO;
     private List<OrderItemDTO> items;
+    private ShipmentDTO shipment;
 }
 

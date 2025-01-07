@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -100,10 +101,8 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
 
-        Address address = addressRepository.findDefaultAddressByUserId(user.getId());
-        if (address == null) {
-            throw new NotFoundException(false, 404, "default address not found");
-        }
+        Address address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new NotFoundException(false, 404, "address not found"));
 
         Shipment shipment = new Shipment();
         shipment.setOrder(order);
@@ -111,10 +110,7 @@ public class OrderServiceImpl implements OrderService {
         shipment.setPrice(totalPrice);
         shipment.setName(user.getUsername());
         shipment.setAddress(address.getProvince()+ ", " + address.getDistrict() + ", " + address.getWard());
-
-        repository.save(order);
-        orderItemRepository.saveAll(orderItems);
-        shipmentRepository.save(shipment);
+        order.setShipment(shipment);
         // Step 4: Update product stock
 //        cart.getCartItemDTOS().forEach(cartItem -> {
 //            Product product = cartItem.getProduct();
@@ -122,7 +118,12 @@ public class OrderServiceImpl implements OrderService {
 //        });
 
         Payment payment = new Payment().setPaymentMethod(request.getPaymentMethod()).setOrder(order);
+        order.setPayment(payment);
         paymentRepository.save(payment);
+        repository.save(order);
+        orderItemRepository.saveAll(orderItems);
+        shipmentRepository.save(shipment);
+
         // Step 5: Clear cart
         cartService.clearCart(request.getCartItemIds());
         List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
@@ -179,8 +180,27 @@ public class OrderServiceImpl implements OrderService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
         List<Order> orders = repository.findByUserId(user.getId());
+        List<OrderDTO> dtos = new ArrayList<>();
+        for (Order order: orders) {
+            OrderDTO dto = new OrderDTO();
+            dto.setId(order.getId());
+            dto.setEmail(order.getEmail());
+            dto.setTotalAmount(order.getTotalAmount());
+            dto.setStatus(order.getStatus());
+            dto.setPaymentDTO(PaymentMapper.INSTANCE.toDto(order.getPayment()));
 
-        return null;
+            Shipment shipment = order.getShipment();
+            ShipmentDTO shipmentDTO = new ShipmentDTO();
+            if (shipment != null) {
+                shipmentDTO.setName(shipment.getName());
+                shipmentDTO.setAddress(shipment.getAddress());
+                shipmentDTO.setPrice(shipment.getPrice());
+                shipmentDTO.setStatus(shipment.getStatus());
+            }
+            dto.setShipment(shipmentDTO);
+            dtos.add(dto);
+        }
+        return new OrderResponse(true, 200).setDtoList(dtos);
     }
 
     @Override

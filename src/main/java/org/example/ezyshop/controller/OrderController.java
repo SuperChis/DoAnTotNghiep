@@ -26,4 +26,10 @@ public class OrderController {
         OrderResponse response = orderService.getOrderDetails(orderId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<OrderResponse> getOrders() {
+        OrderResponse response = orderService.getALlOrderByUser();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

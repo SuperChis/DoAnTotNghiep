@@ -8,4 +8,5 @@ import java.util.List;
 public class OrderRequest {
     private List<Long> cartItemIds;
     private String paymentMethod;
+    private Long addressId;
 }

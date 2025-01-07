@@ -6,10 +6,13 @@ import org.example.ezyshop.base.BaseResponse;
 import org.example.ezyshop.dto.shipment.ShipmentDTO;
 import org.example.ezyshop.entity.Shipment;
 
+import java.util.List;
+
 @Data
 @Accessors(chain = true)
 public class OrderResponse extends BaseResponse {
     private OrderDTO order;
+    private List<OrderDTO> dtoList;
     private ShipmentDTO shipment;
 
     public OrderResponse() {
