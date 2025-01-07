@@ -15,4 +15,5 @@ public class ShipmentDTO {
     private double price;
     private ShipmentStatus status;
     private OrderDTO orderDTO;
+    private String phoneNumber;
 }

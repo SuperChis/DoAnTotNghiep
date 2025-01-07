@@ -25,6 +25,8 @@ public class Shipment extends BaseEntity {
     @Column(name = "price",nullable = false)
     private double price;
 
+    private String phoneNumber;
+
     @Column()
     @Enumerated(EnumType.STRING)
     private ShipmentStatus status;

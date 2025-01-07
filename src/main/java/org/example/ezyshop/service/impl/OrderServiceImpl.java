@@ -122,6 +122,7 @@ public class OrderServiceImpl implements OrderService {
         shipment.setOrder(order);
         shipment.setStatus(ShipmentStatus.PENDING);
         shipment.setPrice(totalPrice);
+        shipment.setPhoneNumber(address.getPhoneNumber());
         shipment.setName(user.getUsername());
         shipment.setAddress(address.getProvince()+ ", " + address.getDistrict() + ", " + address.getWard());
         shipment.setCreated(new Date());
@@ -191,6 +192,7 @@ public class OrderServiceImpl implements OrderService {
             shipmentDTO.setName(shipment.getName());
             shipmentDTO.setAddress(shipment.getAddress());
             shipmentDTO.setPrice(shipment.getPrice());
+            shipmentDTO.setPhoneNumber(shipment.getPhoneNumber());
             shipmentDTO.setStatus(shipment.getStatus());
         }
 
@@ -247,6 +249,7 @@ public class OrderServiceImpl implements OrderService {
                 shipmentDTO.setName(shipment.getName());
                 shipmentDTO.setAddress(shipment.getAddress());
                 shipmentDTO.setPrice(shipment.getPrice());
+                shipmentDTO.setPhoneNumber(shipment.getPhoneNumber());
                 shipmentDTO.setStatus(shipment.getStatus());
             }
             dto.setShipment(shipmentDTO);
@@ -304,6 +307,7 @@ public class OrderServiceImpl implements OrderService {
                 shipmentDTO.setName(shipment.getName());
                 shipmentDTO.setAddress(shipment.getAddress());
                 shipmentDTO.setPrice(shipment.getPrice());
+                shipmentDTO.setPhoneNumber(shipment.getPhoneNumber());
                 shipmentDTO.setStatus(shipment.getStatus());
             }
             dto.setShipment(shipmentDTO);

@@ -79,6 +79,7 @@ public class ShipperServiceImpl implements ShipperService {
             shipmentDTO.setName(shipment.getName());
             shipmentDTO.setAddress(shipment.getAddress());
             shipmentDTO.setPrice(shipment.getPrice());
+            shipmentDTO.setPhoneNumber(shipment.getPhoneNumber());
             shipmentDTO.setStatus(shipment.getStatus());
         }
         shipmentDTO.setOrderDTO(orderDTO);
@@ -101,6 +102,7 @@ public class ShipperServiceImpl implements ShipperService {
                 shipmentDTO.setName(shipment.getName());
                 shipmentDTO.setAddress(shipment.getAddress());
                 shipmentDTO.setPrice(shipment.getPrice());
+                shipmentDTO.setPhoneNumber(shipment.getPhoneNumber());
                 shipmentDTO.setStatus(shipment.getStatus());
             }
             Order order = shipment.getOrder();
@@ -134,6 +136,7 @@ public class ShipperServiceImpl implements ShipperService {
             shipmentDTO.setName(shipment.getName());
             shipmentDTO.setAddress(shipment.getAddress());
             shipmentDTO.setPrice(shipment.getPrice());
+            shipmentDTO.setPhoneNumber(shipment.getPhoneNumber());
             shipmentDTO.setStatus(shipment.getStatus());
         }
         Order order = shipment.getOrder();
