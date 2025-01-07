@@ -35,7 +35,7 @@ public class Shipment extends BaseEntity {
     private Order order;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipper_id")
     private User shipper;
 }
