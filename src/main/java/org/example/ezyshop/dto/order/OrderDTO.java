@@ -5,6 +5,7 @@ import org.example.ezyshop.dto.payment.PaymentDTO;
 import org.example.ezyshop.dto.shipment.ShipmentDTO;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -17,5 +18,6 @@ public class OrderDTO {
     private PaymentDTO paymentDTO;
     private List<OrderItemDTO> items;
     private ShipmentDTO shipment;
+    private Date createdDate;
 }
 

@@ -159,6 +159,7 @@ public class OrderServiceImpl implements OrderService {
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
         orderDTO.setItems(itemDTOs);
+        orderDTO.setCreatedDate(order.getCreated());
         orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
         response.setOrder(orderDTO);
         return response;
@@ -180,6 +181,7 @@ public class OrderServiceImpl implements OrderService {
 //        orderDTO.setOrderDate(order.getOrderDate());
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
+        orderDTO.setCreatedDate(order.getCreated());
         orderDTO.setItems(itemDTOs);
         orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
 
@@ -236,6 +238,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setEmail(order.getEmail());
             dto.setTotalAmount(order.getTotalAmount());
             dto.setStatus(order.getStatus());
+            dto.setCreatedDate(order.getCreated());
             dto.setPaymentDTO(PaymentMapper.INSTANCE.toDto(order.getPayment()));
             dto.setItems(mapItemDTOSByOrderId.get(order.getId()));
             Shipment shipment = mapShipmentByOrderId.get(order.getId());
@@ -292,6 +295,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setEmail(order.getEmail());
             dto.setTotalAmount(order.getTotalAmount());
             dto.setStatus(order.getStatus());
+            dto.setCreatedDate(order.getCreated());
             dto.setPaymentDTO(PaymentMapper.INSTANCE.toDto(order.getPayment()));
             dto.setItems(mapItemDTOSByOrderId.get(order.getId()));
             Shipment shipment = mapShipmentByOrderId.get(order.getId());

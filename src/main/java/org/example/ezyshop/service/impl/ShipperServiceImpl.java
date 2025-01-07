@@ -70,6 +70,7 @@ public class ShipperServiceImpl implements ShipperService {
         orderDTO.setEmail(order.getEmail());
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
+        orderDTO.setCreatedDate(order.getCreated());
         orderDTO.setItems(itemDTOs);
         orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
 
@@ -108,6 +109,7 @@ public class ShipperServiceImpl implements ShipperService {
             orderDTO.setEmail(order.getEmail());
             orderDTO.setTotalAmount(order.getTotalAmount());
             orderDTO.setStatus(order.getStatus());
+            orderDTO.setCreatedDate(order.getCreated());
 //            orderDTO.setItems(itemDTOs);
 //            orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
             shipmentDTO.setOrderDTO(orderDTO);
@@ -140,6 +142,7 @@ public class ShipperServiceImpl implements ShipperService {
         orderDTO.setEmail(order.getEmail());
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
+        orderDTO.setCreatedDate(order.getCreated());
 //            orderDTO.setItems(itemDTOs);
 //            orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
         shipmentDTO.setOrderDTO(orderDTO);
