@@ -25,4 +25,5 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
             "FROM Shipment s " +
             "Where s.shipper.id = ?1 ")
     Page<Shipment> findByShipperId(Long shipperId, Pageable pageable);
+
 }

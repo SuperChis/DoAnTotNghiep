@@ -125,5 +125,31 @@ public class ShipperServiceImpl implements ShipperService {
         return new ShipmentResponse(true, 200).setDtoList(shipmentDTOS).setPageDto(PageDto.populatePageDto(shipmentPage));
     }
 
+    public ShipmentResponse getShipmentDetails(Long shipmentId) {
+        Shipment shipment = shipmentRepository.findById(shipmentId).orElseThrow(() -> new NotFoundException(false, 404, "shipment not found"));
+        ShipmentDTO shipmentDTO = new ShipmentDTO();
+        if (shipment != null) {
+            shipmentDTO.setName(shipment.getName());
+            shipmentDTO.setAddress(shipment.getAddress());
+            shipmentDTO.setPrice(shipment.getPrice());
+            shipmentDTO.setStatus(shipment.getStatus());
+        }
+        Order order = shipment.getOrder();
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(order.getId());
+        orderDTO.setEmail(order.getEmail());
+        orderDTO.setTotalAmount(order.getTotalAmount());
+        orderDTO.setStatus(order.getStatus());
+//            orderDTO.setItems(itemDTOs);
+//            orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
+        shipmentDTO.setOrderDTO(orderDTO);
+        Long orderId = shipment.getOrder().getId();
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
+        List<OrderItemDTO> orderItemDTOS = orderItems.stream().map(this::mapToOrderItemDTO).toList();
+        Map<Long, List<OrderItemDTO>> mapOrderItemDTOByOrderId = orderItemDTOS.stream()
+                .collect(Collectors.groupingBy(OrderItemDTO::getOrderId));
+        shipmentDTO.getOrderDTO().setItems(mapOrderItemDTOByOrderId.get(shipmentDTO.getOrderDTO().getId()));
+        return new ShipmentResponse(true, 200).setDto(shipmentDTO);
+    }
 
 }

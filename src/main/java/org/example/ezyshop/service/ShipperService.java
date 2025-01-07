@@ -8,4 +8,6 @@ public interface ShipperService {
     ShipmentResponse updateShipment(ShipmentRequest request);
 
     ShipmentResponse getAllShipment(Pageable pageable);
+
+    ShipmentResponse getShipmentDetails(Long shipmentId);
 }

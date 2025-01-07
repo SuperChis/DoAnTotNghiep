@@ -28,4 +28,11 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "       WHERE o.id IN (?1) " +
             "       AND o.isDeleted = false ")
     List<OrderItem> findByOrderIdIn(List<Long> orderId);
+
+    @Query(value = "SELECT od " +
+            "       FROM OrderItem od " +
+            "       LEFT JOIN Order o ON od.order.id = o.id " +
+            "       WHERE o.id = (?1) " +
+            "       AND o.isDeleted = false ")
+    List<OrderItem> findByOrderId(Long orderId);
 }
