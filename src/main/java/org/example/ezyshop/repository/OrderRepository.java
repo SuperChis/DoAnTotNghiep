@@ -25,6 +25,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "JOIN OrderItem oi ON o.id = oi.order.id " +
             "JOIN Product p ON oi.product.id = p.id " +
             "WHERE p.store.id = :storeId AND o.isDeleted = false " +
+            "     AND o.isDeleted = false " +
+            "     AND p.isDeleted = false " +
             "ORDER BY o.created desc ")
     Page<Order> findOrdersByStoreId(@Param("storeId") Long storeId, Pageable pageable);
 }
