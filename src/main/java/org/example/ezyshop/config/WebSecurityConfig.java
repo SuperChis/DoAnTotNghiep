@@ -86,6 +86,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/auth/user/**", "/api/user/**",
                                         "api/cart/user/**", "/api/order/**", "/api/review/**").hasRole("USER")
                                 .requestMatchers("/api/store/product/add","/api/store/**").hasRole("STORE")
+                                .requestMatchers("/api/shipper/**").hasRole("SHIPPER")
                                 .requestMatchers("/api/categories/admin/**", "/api/product/admin/categories",
                                 "/api/product/admin/**", "/api/admin/request/**",
                                 "/api/admin/confirm/**").hasRole("ADMIN")

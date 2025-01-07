@@ -3,6 +3,7 @@ package org.example.ezyshop.service.impl;
 import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.order.OrderDTO;
 import org.example.ezyshop.dto.order.OrderItemDTO;
+import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.shipment.ShipmentDTO;
 import org.example.ezyshop.dto.shipment.ShipmentRequest;
 import org.example.ezyshop.dto.shipment.ShipmentResponse;
@@ -19,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ShipperServiceImpl implements ShipperService {
@@ -107,12 +110,20 @@ public class ShipperServiceImpl implements ShipperService {
             orderDTO.setStatus(order.getStatus());
 //            orderDTO.setItems(itemDTOs);
 //            orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
+            shipmentDTO.setOrderDTO(orderDTO);
             return shipmentDTO;
         }).toList();
 
-        List<Long> shipmentIds = shipments.stream().map(shipment -> shipment.getOrder().getId()).toList();
-
-        return null;
+        List<Long> orderIds = shipments.stream().map(shipment -> shipment.getOrder().getId()).toList();
+        List<OrderItem> orderItems = orderItemRepository.findByOrderIdIn(orderIds);
+        List<OrderItemDTO> orderItemDTOS = orderItems.stream().map(this::mapToOrderItemDTO).toList();
+        Map<Long, List<OrderItemDTO>> mapOrderItemDTOByOrderId = orderItemDTOS.stream()
+                .collect(Collectors.groupingBy(OrderItemDTO::getOrderId));
+        for (ShipmentDTO shipmentDTO : shipmentDTOS) {
+            shipmentDTO.getOrderDTO().setItems(mapOrderItemDTOByOrderId.get(shipmentDTO.getOrderDTO().getId()));
+        }
+        return new ShipmentResponse(true, 200).setDtoList(shipmentDTOS).setPageDto(PageDto.populatePageDto(shipmentPage));
     }
+
 
 }
