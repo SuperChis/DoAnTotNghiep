@@ -5,6 +5,7 @@ import org.example.ezyshop.constant.Constants;
 import org.example.ezyshop.dto.order.OrderResponse;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
+import org.example.ezyshop.dto.shipment.ShipmentRequest;
 import org.example.ezyshop.dto.shipment.ShipmentResponse;
 import org.example.ezyshop.dto.size.SizeRequest;
 import org.example.ezyshop.dto.size.SizeResponse;
@@ -38,6 +39,8 @@ public class StoreController {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private ShipperService shipperService;
 
     @GetMapping("/store/info")
     public ResponseEntity<StoreResponse> getStoreInforByUser() {
@@ -136,5 +139,11 @@ public class StoreController {
                                                    @RequestParam(name = "pageSize", defaultValue = Constants.PAGE_SIZE, required = false) Integer pageSize) {
         OrderResponse response = orderService.getALlOrderByStore(PageRequest.of(pageNumber, pageSize));
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/store/order")
+    public ResponseEntity<ShipmentResponse> updateShipment(@RequestBody ShipmentRequest request) {
+        ShipmentResponse response = shipperService.updateShipment(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
