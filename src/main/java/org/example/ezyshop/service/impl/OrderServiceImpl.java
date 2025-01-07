@@ -20,10 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -192,6 +190,11 @@ public class OrderServiceImpl implements OrderService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
         List<Order> orders = repository.findByUserId(user.getId());
+        List<Long> orderIds = orders.stream().map(Order::getId).toList();
+        List<OrderItem> orderItems = orderItemRepository.findByOrderIdIn(orderIds);
+        List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
+        Map<Long, List<OrderItemDTO>> mapItemDTOSByOrderId = itemDTOs.stream()
+                .collect(Collectors.groupingBy(OrderItemDTO::getOrderId));
         List<OrderDTO> dtos = new ArrayList<>();
         for (Order order: orders) {
             OrderDTO dto = new OrderDTO();
@@ -200,7 +203,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setTotalAmount(order.getTotalAmount());
             dto.setStatus(order.getStatus());
             dto.setPaymentDTO(PaymentMapper.INSTANCE.toDto(order.getPayment()));
-
+            dto.setItems(mapItemDTOSByOrderId.get(order.getId()));
             Shipment shipment = order.getShipment();
             ShipmentDTO shipmentDTO = new ShipmentDTO();
             if (shipment != null) {
@@ -227,6 +230,8 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderItemDTO mapToOrderItemDTO(OrderItem item) {
         OrderItemDTO dto = new OrderItemDTO();
+        dto.setOrderId(item.getOrder().getId());
+        dto.setOrderItemId(item.getId());
         dto.setProductId(item.getProduct().getId());
         dto.setProductName(item.getProduct().getName());
         dto.setQuantity(item.getQuantity());
