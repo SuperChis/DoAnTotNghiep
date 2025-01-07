@@ -173,7 +173,18 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderItem> orderItems = orderItemRepository.findByOrderIdAndIsDeletedFalse(orderId);
 
-        List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
+//        List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
+        List<Long> sizeIds = orderItems.stream().map(OrderItem::getSizeId).toList();
+        List<SizeEntity> sizeEntities = sizeRepository.findByIdIn(sizeIds);
+        Map<Long, SizeEntity> sizeMap = sizeEntities.stream()
+                .collect(Collectors.toMap(SizeEntity::getId, sizeEntity -> sizeEntity));
+        List<OrderItemDTO> itemDTOs = orderItems.stream().map(orderItem -> {
+            OrderItemDTO orderItemDTO =  this.mapToOrderItemDTO(orderItem);
+            SizeEntity sizeEntity = sizeMap.get(orderItem.getSizeId());
+            orderItemDTO.setSizeDTO(SizeMapper.INSTANCE.toDTO(sizeEntity));
+            orderItemDTO.setVariantDTO(VariantMapper.MAPPER.toDTOInOrder(sizeEntity.getVariant()));
+            return orderItemDTO;
+        }).toList();
 
         Payment payment = paymentRepository.findByOrderId(orderId);
         OrderDTO orderDTO = new OrderDTO();
