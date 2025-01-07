@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
         shipment.setPrice(totalPrice);
         shipment.setName(user.getUsername());
         shipment.setAddress(address.getProvince()+ ", " + address.getDistrict() + ", " + address.getWard());
-        order.setShipment(shipment);
+//        order.setShipment(shipment);
 
         try {
             Optional<User> shipper = userRepository.findByEmailAndIsDeletedFalse("shipperTokoo01@yopmail.com");
@@ -195,6 +195,13 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
         Map<Long, List<OrderItemDTO>> mapItemDTOSByOrderId = itemDTOs.stream()
                 .collect(Collectors.groupingBy(OrderItemDTO::getOrderId));
+
+        List<Shipment> shipments = shipmentRepository.findByOrderIdIn(orderIds);
+        Map<Long, Shipment> mapShipmentByOrderId = shipments.stream()
+                .collect(Collectors.toMap(
+                        shipment -> shipment.getOrder().getId(), // Key: orderId
+                        shipment -> shipment // Value: Shipment object
+                ));
         List<OrderDTO> dtos = new ArrayList<>();
         for (Order order: orders) {
             OrderDTO dto = new OrderDTO();
@@ -204,7 +211,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setStatus(order.getStatus());
             dto.setPaymentDTO(PaymentMapper.INSTANCE.toDto(order.getPayment()));
             dto.setItems(mapItemDTOSByOrderId.get(order.getId()));
-            Shipment shipment = order.getShipment();
+            Shipment shipment = mapShipmentByOrderId.get(order.getId());
             ShipmentDTO shipmentDTO = new ShipmentDTO();
             if (shipment != null) {
                 shipmentDTO.setName(shipment.getName());

@@ -40,9 +40,9 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipment_id")
-    private Shipment shipment;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "shipment_id")
+//    private Shipment shipment;
 
     private boolean isDeleted;
 }
