@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -53,6 +54,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     @Transactional
@@ -111,6 +115,14 @@ public class OrderServiceImpl implements OrderService {
         shipment.setName(user.getUsername());
         shipment.setAddress(address.getProvince()+ ", " + address.getDistrict() + ", " + address.getWard());
         order.setShipment(shipment);
+
+        try {
+            Optional<User> shipper = userRepository.findByEmailAndIsDeletedFalse("shipperTokoo01@yopmail.com");
+            shipment.setShipper(shipper.get());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
         // Step 4: Update product stock
 //        cart.getCartItemDTOS().forEach(cartItem -> {
 //            Product product = cartItem.getProduct();
@@ -119,10 +131,10 @@ public class OrderServiceImpl implements OrderService {
 
         Payment payment = new Payment().setPaymentMethod(request.getPaymentMethod()).setOrder(order);
         order.setPayment(payment);
-        paymentRepository.save(payment);
         repository.save(order);
         orderItemRepository.saveAll(orderItems);
         shipmentRepository.save(shipment);
+        paymentRepository.save(payment);
 
         // Step 5: Clear cart
         cartService.clearCart(request.getCartItemIds());
