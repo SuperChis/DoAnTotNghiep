@@ -1,19 +1,20 @@
 package org.example.ezyshop.controller;
 
 import jakarta.validation.Valid;
+import org.example.ezyshop.constant.Constants;
+import org.example.ezyshop.dto.order.OrderResponse;
 import org.example.ezyshop.dto.product.ProductRequest;
 import org.example.ezyshop.dto.product.ProductResponse;
+import org.example.ezyshop.dto.shipment.ShipmentResponse;
 import org.example.ezyshop.dto.size.SizeRequest;
 import org.example.ezyshop.dto.size.SizeResponse;
 import org.example.ezyshop.dto.store.CreateStoreRequest;
 import org.example.ezyshop.dto.store.StoreResponse;
 import org.example.ezyshop.dto.variant.VariantRequest;
 import org.example.ezyshop.dto.variant.VariantResponse;
-import org.example.ezyshop.service.ProductService;
-import org.example.ezyshop.service.SizeService;
-import org.example.ezyshop.service.StoreService;
-import org.example.ezyshop.service.VariantService;
+import org.example.ezyshop.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,9 @@ public class StoreController {
 
     @Autowired
     private SizeService sizeService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/store/info")
     public ResponseEntity<StoreResponse> getStoreInforByUser() {
@@ -119,5 +123,18 @@ public class StoreController {
     @DeleteMapping("/store/size/{id}")
     public SizeResponse deleteSize(@PathVariable Long id) {
         return sizeService.deleteSize(id);
+    }
+
+    @GetMapping("/store/order/{orderId}")
+    public ResponseEntity<OrderResponse> getOrderDetails(@PathVariable Long orderId) {
+        OrderResponse response = orderService.getOrderDetails(orderId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/store/order/all")
+    public ResponseEntity<OrderResponse> getOrders(@RequestParam(name = "pageNumber", defaultValue = Constants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                   @RequestParam(name = "pageSize", defaultValue = Constants.PAGE_SIZE, required = false) Integer pageSize) {
+        OrderResponse response = orderService.getALlOrderByStore(PageRequest.of(pageNumber, pageSize));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

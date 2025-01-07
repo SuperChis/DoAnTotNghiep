@@ -6,6 +6,7 @@ import org.example.ezyshop.dto.order.OrderDTO;
 import org.example.ezyshop.dto.order.OrderItemDTO;
 import org.example.ezyshop.dto.order.OrderRequest;
 import org.example.ezyshop.dto.order.OrderResponse;
+import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.product.ProductDTO;
 import org.example.ezyshop.dto.shipment.ShipmentDTO;
 import org.example.ezyshop.entity.*;
@@ -20,6 +21,8 @@ import org.example.ezyshop.repository.*;
 import org.example.ezyshop.service.CartService;
 import org.example.ezyshop.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,6 +64,9 @@ public class OrderServiceImpl implements OrderService {
     private UserRepository userRepository;
     @Autowired
     private SizeRepository sizeRepository;
+
+    @Autowired
+    private StoreRepository storeRepository;
 
     @Override
     @Transactional
@@ -244,6 +250,62 @@ public class OrderServiceImpl implements OrderService {
             dtos.add(dto);
         }
         return new OrderResponse(true, 200).setDtoList(dtos);
+    }
+
+    @Override
+    public OrderResponse getALlOrderByStore(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        StoreEntity store = storeRepository.findByUserId(user.getId());
+        Page<Order> orderPages = repository.findOrdersByStoreId(store.getId(), pageable);
+        List<Order> orders = orderPages.getContent();
+        List<Long> orderIds = orders.stream().map(Order::getId).toList();
+        List<OrderItem> orderItems = orderItemRepository.findByOrderIdIn(orderIds);
+
+        List<Long> sizeIds = orderItems.stream().map(OrderItem::getSizeId).toList();
+        List<SizeEntity> sizeEntities = sizeRepository.findByIdIn(sizeIds);
+        Map<Long, SizeEntity> sizeMap = sizeEntities.stream()
+                .collect(Collectors.toMap(SizeEntity::getId, sizeEntity -> sizeEntity));
+
+        List<OrderItemDTO> itemDTOs = orderItems.stream().map(orderItem -> {
+            OrderItemDTO orderItemDTO =  this.mapToOrderItemDTO(orderItem);
+            SizeEntity sizeEntity = sizeMap.get(orderItem.getSizeId());
+            orderItemDTO.setSizeDTO(SizeMapper.INSTANCE.toDTO(sizeEntity));
+            orderItemDTO.setVariantDTO(VariantMapper.MAPPER.toDTOInOrder(sizeEntity.getVariant()));
+            return orderItemDTO;
+        }).toList();
+
+        Map<Long, List<OrderItemDTO>> mapItemDTOSByOrderId = itemDTOs.stream()
+                .collect(Collectors.groupingBy(OrderItemDTO::getOrderId));
+
+        List<Shipment> shipments = shipmentRepository.findByOrderIdIn(orderIds);
+        Map<Long, Shipment> mapShipmentByOrderId = shipments.stream()
+                .collect(Collectors.toMap(
+                        shipment -> shipment.getOrder().getId(), // Key: orderId
+                        shipment -> shipment // Value: Shipment object
+                ));
+        List<OrderDTO> dtos = new ArrayList<>();
+        for (Order order: orders) {
+            OrderDTO dto = new OrderDTO();
+            dto.setId(order.getId());
+            dto.setEmail(order.getEmail());
+            dto.setTotalAmount(order.getTotalAmount());
+            dto.setStatus(order.getStatus());
+            dto.setPaymentDTO(PaymentMapper.INSTANCE.toDto(order.getPayment()));
+            dto.setItems(mapItemDTOSByOrderId.get(order.getId()));
+            Shipment shipment = mapShipmentByOrderId.get(order.getId());
+            ShipmentDTO shipmentDTO = new ShipmentDTO();
+            if (shipment != null) {
+                shipmentDTO.setName(shipment.getName());
+                shipmentDTO.setAddress(shipment.getAddress());
+                shipmentDTO.setPrice(shipment.getPrice());
+                shipmentDTO.setStatus(shipment.getStatus());
+            }
+            dto.setShipment(shipmentDTO);
+            dtos.add(dto);
+        }
+        return new OrderResponse(true, 200).setDtoList(dtos).setPageDto(PageDto.populatePageDto(orderPages));
     }
 
     @Override

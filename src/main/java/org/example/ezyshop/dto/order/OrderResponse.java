@@ -3,6 +3,7 @@ package org.example.ezyshop.dto.order;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.example.ezyshop.base.BaseResponse;
+import org.example.ezyshop.dto.pagination.PageDto;
 import org.example.ezyshop.dto.shipment.ShipmentDTO;
 import org.example.ezyshop.entity.Shipment;
 
@@ -14,6 +15,7 @@ public class OrderResponse extends BaseResponse {
     private OrderDTO order;
     private List<OrderDTO> dtoList;
     private ShipmentDTO shipment;
+    private PageDto pageDto;
 
     public OrderResponse() {
     }
