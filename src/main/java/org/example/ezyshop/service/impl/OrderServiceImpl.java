@@ -1,5 +1,6 @@
 package org.example.ezyshop.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ezyshop.config.service.UserDetailsImpl;
 import org.example.ezyshop.dto.order.OrderDTO;
 import org.example.ezyshop.dto.order.OrderItemDTO;
@@ -10,6 +11,7 @@ import org.example.ezyshop.entity.*;
 import org.example.ezyshop.enums.ShipmentStatus;
 import org.example.ezyshop.exception.NotFoundException;
 import org.example.ezyshop.exception.RequetFailException;
+import org.example.ezyshop.mapper.PaymentMapper;
 import org.example.ezyshop.repository.*;
 import org.example.ezyshop.service.CartService;
 import org.example.ezyshop.service.OrderService;
@@ -34,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderItemRepository orderItemRepository;
 
 //    @Autowired
-//    private PaymentService paymentService;
+//    private PaymentService PaymentService;
 
     @Autowired
     private CartItemRepository cartItemRepository;
@@ -48,7 +50,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ShipmentRepository shipmentRepository;
 
+    @Autowired
+    private PaymentRepository paymentRepository;
+
     @Override
+    @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -58,9 +64,6 @@ public class OrderServiceImpl implements OrderService {
         if (cart == null ) {
             throw new NotFoundException(false, 404, "Cart is empty");
         }
-
-        // Step 1: Process payment
-//        Payment payment = paymentService.processPayment(user, cart.getTotalPrice());
 
         List<CartItem> cartItems = cartItemRepository.findByCartItemIdIn(request.getCartItemIds());
         if (cartItems.isEmpty()) {
@@ -118,6 +121,8 @@ public class OrderServiceImpl implements OrderService {
 //            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
 //        });
 
+        Payment payment = new Payment().setPaymentMethod(request.getPaymentMethod()).setOrder(order);
+        paymentRepository.save(payment);
         // Step 5: Clear cart
         cartService.clearCart(request.getCartItemIds());
         List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
@@ -129,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
         orderDTO.setItems(itemDTOs);
-
+        orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
         response.setOrder(orderDTO);
         return response;
     }
@@ -143,6 +148,7 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderItemDTO> itemDTOs = orderItems.stream().map(this::mapToOrderItemDTO).toList();
 
+        Payment payment = paymentRepository.findByOrderId(orderId);
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
         orderDTO.setEmail(order.getEmail());
@@ -150,6 +156,7 @@ public class OrderServiceImpl implements OrderService {
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setStatus(order.getStatus());
         orderDTO.setItems(itemDTOs);
+        orderDTO.setPaymentDTO(PaymentMapper.INSTANCE.toDto(payment));
 
         Shipment shipment = shipmentRepository.findByOrderId(orderId);
         ShipmentDTO shipmentDTO = new ShipmentDTO();
@@ -171,9 +178,19 @@ public class OrderServiceImpl implements OrderService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userDetails.getUser();
-
+        List<Order> orders = repository.findByUserId(user.getId());
 
         return null;
+    }
+
+    @Override
+    public void updateOrderStatus(Long orderId, String status) {
+        Order order = repository.findByIdAndIsDeletedFalse(orderId);
+        if (order == null) {
+            throw new NotFoundException(false, 404, "Order not exists");
+        }
+        order.setStatus(status);
+        repository.save(order);
     }
 
     private OrderItemDTO mapToOrderItemDTO(OrderItem item) {

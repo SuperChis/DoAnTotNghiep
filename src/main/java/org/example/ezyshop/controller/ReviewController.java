@@ -2,6 +2,7 @@ package org.example.ezyshop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.ezyshop.dto.review.ReviewRequest;
+import org.example.ezyshop.dto.review.ReviewResponse;
 import org.example.ezyshop.entity.Review;
 import org.example.ezyshop.service.ReviewService;
 import org.springframework.http.HttpStatus;
@@ -22,11 +23,11 @@ public class ReviewController {
         return ResponseEntity.ok(review);
     }
 
-//    @PostMapping
-//    public ResponseEntity<Review> createReview(@RequestBody ReviewRequest request) {
-//        Review savedReview = service.createReview(request);
-//        return new ResponseEntity<>(savedReview, HttpStatus.CREATED);
-//    }
+    @PostMapping
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest request) {
+        ReviewResponse response = service.createReview(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
     @GetMapping("/product/{productId}")
     public ResponseEntity<List<Review>> getReviewsByProduct(@PathVariable Long productId) {

@@ -8,4 +8,5 @@ public interface OrderService {
     OrderResponse createOrder(OrderRequest request);
     OrderResponse getOrderDetails(Long orderId);
     OrderResponse getALlOrderByUser();
+    void updateOrderStatus(Long orderId, String status);
 }

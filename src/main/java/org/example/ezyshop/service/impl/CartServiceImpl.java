@@ -269,8 +269,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void clearCart(List<Long> cartItemIds) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        Cart cart = repository.findByUserId(user.getId());
         List<CartItem> cartItems = cartItemRepository.findByCartItemIdIn(cartItemIds);
         cartItems.forEach(item -> item.setDeleted(true)); // Xóa mềm các CartItem
+        Double totalPriceInCartItems = cartItems.stream()
+                .mapToDouble(CartItem::getProductPrice)
+                .sum();
+        cart.setTotalPrice(cart.getTotalPrice() - totalPriceInCartItems);
+        repository.save(cart);
         cartItemRepository.saveAll(cartItems);
     }
 }

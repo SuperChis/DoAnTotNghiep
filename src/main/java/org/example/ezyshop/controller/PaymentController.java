@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.ezyshop.dto.payment.PaymentRequest;
 import org.example.ezyshop.dto.payment.PaymentResponse;
 import org.example.ezyshop.dto.payment.PaymentResultResponse;
+import org.example.ezyshop.service.OrderService;
 import org.example.ezyshop.service.VNPayService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentController {
     private final VNPayService vnPayService;
+
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/create")
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest request) {
@@ -48,8 +53,10 @@ public class PaymentController {
                 response.setAmount(Integer.parseInt(totalPrice));
                 response.setTransactionId(transactionId);
                 response.setPaymentTime(paymentTime);
-                response.setOrderInfo(orderInfo);
+                response.setOrderInfo(orderInfo + " has payment successfully");
                 response.setMessage("success");
+                Long orderId = Long.parseLong(orderInfo);
+                orderService.updateOrderStatus(orderId, "PAID");
                 return ResponseEntity.ok(response);
             } else {
                 // Payment failed

@@ -29,8 +29,14 @@ public class Order extends BaseEntity {
     private Double totalAmount;
 
     private String status;
+    /*
+    PENDING: Chờ thanh toán.
 
-    @OneToOne(fetch = FetchType.LAZY)
+    PAID: Đã thanh toán.
+    CANCELLED: Đơn hàng đã bị hủy.
+    SHIPPED: Đơn hàng đã được gửi đi.
+    */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

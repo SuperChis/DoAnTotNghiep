@@ -1,22 +1,24 @@
 package org.example.ezyshop.service;
 
+import org.example.ezyshop.dto.review.ReviewRequest;
+import org.example.ezyshop.dto.review.ReviewResponse;
 import org.example.ezyshop.entity.Review;
 import org.example.ezyshop.exception.NotFoundException;
 
 import java.util.List;
 
 public interface ReviewService {
-    public Review getReviewByProductAndUser(Long productId, Long userId);
+    Review getReviewByProductAndUser(Long productId, Long userId);
 
-    public Review createReview(Review review);
+    ReviewResponse createReview(ReviewRequest request);
 
-    public List<Review> getReviewsByProduct(Long productId);
+    List<Review> getReviewsByProduct(Long productId);
 
-    public List<Review> getReviewsByUser(Long userId);
+    List<Review> getReviewsByUser(Long userId);
 
-    public Review getReviewById(Long id);
+    Review getReviewById(Long id);
 
-    public Review updateReview(Long id, Review updatedReview);
+    Review updateReview(Long id, Review updatedReview);
 
-    public void deleteReview(Long id);
+    void deleteReview(Long id);
 }

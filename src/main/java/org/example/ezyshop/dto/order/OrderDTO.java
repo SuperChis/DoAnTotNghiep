@@ -1,6 +1,7 @@
 package org.example.ezyshop.dto.order;
 
 import lombok.Data;
+import org.example.ezyshop.dto.payment.PaymentDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ public class OrderDTO {
     private LocalDateTime orderDate;
     private Double totalAmount;
     private String status;
+    private PaymentDTO paymentDTO;
     private List<OrderItemDTO> items;
 }
 
