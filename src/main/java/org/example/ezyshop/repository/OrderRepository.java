@@ -17,7 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o " +
             "FROM Order o " +
             "WHERE o.user.id = (?1) " +
-            "   AND o.isDeleted = false ")
+            "   AND o.isDeleted = false " +
+            "ORDER BY o.created desc ")
     List<Order> findByUserId(Long userId);
 
     @Query(value = "SELECT o " +
